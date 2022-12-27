@@ -50,10 +50,55 @@ export class MosaicNode {
   init() {
     console.log(this);
     const item = new MosaicNode(this);
+    this.root.type = "parent";
     this.first = item;
-    this.root.renderTargetList.set(item.id, item);
+    item.parent = this.root;
+    this.root.renderTargetList.set(item.origin.id, item);
     return this;
   }
+
+  getLocation() {
+    const isFirst = this.parent.first.id === this.id;
+    const isSecond = this.parent.second.id === this.id;
+    if (isFirst || isSecond) {
+      if (isFirst) return "first";
+      if (isSecond) return "second";
+    } else {
+      throw new Error("not found this id");
+    }
+  }
+
+  getSibilingNode() {
+    const isFirst = this.parent.first.id === this.id;
+    return this.parent[isFirst ? "second" : "first"];
+  }
+
+  getReflica() {
+    return this.origin.id === this.id ? false : true;
+  }
+  hasChild() {
+    return this.first || this.second;
+  }
+
+  getRenderList() {
+    this.root.renderTargetList.clear();
+    this.root.renderListCheckOrder();
+  }
+
+  renderListCheckOrder() {
+    if ((this.type = "child")) {
+      this.root.renderTargetList.set(this.origin.id, this);
+    }
+    if (this.hasChild) {
+      if (this.first) {
+        this.first.renderListCheckOrder();
+      }
+      if (this.second) {
+        this.second.renderListCheckOrder();
+      }
+    }
+  }
+
   changeOriginInfo(node: MosaicNode) {
     console.log("인자 전달받은 아이디", node.id);
     if (!this.isReplica) {
@@ -72,6 +117,7 @@ export class MosaicNode {
       }
     }
   }
+
   //받은 노드로부터 아래 자식 노드들의 origin 정보를 바꿈.
   originInfoChangePropagationToChild(
     originNode: MosaicNode,
@@ -100,14 +146,9 @@ export class MosaicNode {
     if (!this.parent || !isNoChild) return;
     //childNode 없다면
     if (isNoChild) {
-      this.root.renderTargetList.delete(this.origin.id);
       //새로운 노드 생성, first는 항상 replica
       this.first = new MosaicNode(this, "first", true);
       this.second = new MosaicNode(this, "second");
-      [this.first, this.second].forEach((item) =>
-        this.root.renderTargetList.set(item.origin.id, item)
-      );
-      //this의 타입은 자식이 있으므로 parent
       this.type = "parent";
     }
     console.log(this.root);
@@ -152,7 +193,6 @@ const deleteFunctions = {
     node.parent.second = null;
     console.log("덮어쓸 노드아이디", nextOriginNode.id);
     originNode.changeOriginInfo(nextOriginNode);
-    node.root.renderTargetList.delete(node.origin.id);
     node.parent.type = "child";
     console.log(node.root);
   },
@@ -160,9 +200,6 @@ const deleteFunctions = {
     console.log("nomal case");
     if (node.parent.id === "master") return;
     if (!node.isReplica) {
-      node.root.renderTargetList.delete(node.id);
-      node.root.renderTargetList.delete(node.parent.first.id);
-      node.root.renderTargetList.delete(node.parent.second.id);
       const parentNode = node.parent;
       const parentReplicaNode =
         parentNode[node.location === "first" ? "second" : "first"];
@@ -172,13 +209,11 @@ const deleteFunctions = {
         const tempSecond = parentReplicaNode.second;
         tempFirst.parent = parentNode;
         tempSecond.parent = parentNode;
-        node.root.renderTargetList.delete(node.id);
       }
       if (parentReplicaNode.type === "child") {
         parentNode.type = "child";
         parentNode.first = null;
         parentNode.second = null;
-        node.root.renderTargetList.set(parentNode.id, parentNode);
       }
     }
   },

@@ -11,11 +11,8 @@ const items = writable(test.root.renderTargetList);
 // test.first.first.first.first.delete();
 console.log(test);
 const update = () => {
-  [...test.root.renderTargetList].forEach((item) => {
-    if (item[1].type !== "child") {
-      test.root.renderTargetList.delete(item[1].id);
-    }
-  });
+  test.root.renderTargetList.clear();
+  test.root.getRenderList();
   $items = test.root.renderTargetList;
 };
 console.log($items);

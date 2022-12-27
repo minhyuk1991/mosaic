@@ -46,9 +46,10 @@ export let node: MosaicNode;
     </p>
   {/if}
   {#if node.location === "first"}
+    {node.parent}
     <div
       class="{`${
-        node.parent.derection === 'row'
+        node?.parent?.derection === 'row'
           ? 'right-[-6px] top-0 h-full w-[6px]'
           : 'bottom-[-6px] h-[7px] w-full'
       }  absolute  z-10 bg-red-500`}">
