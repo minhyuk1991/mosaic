@@ -12,7 +12,6 @@ const splitBarItems = writable(test.root.splitBarRenderList);
 // test.first.first.split();
 // test.first.first.first.split();
 // test.first.first.first.first.delete();
-console.log($splitBarItems);
 const update = () => {
   test.root.nodeRendertList.clear();
   test.root.splitBarRenderList.clear();
@@ -20,7 +19,9 @@ const update = () => {
   test.root.getSplitBarRenderList();
   $nodeItems = test.root.nodeRendertList;
   $splitBarItems = test.root.splitBarRenderList;
+  console.log(test.root);
 };
+
 // console.log($nodeItems);
 </script>
 
@@ -30,6 +31,9 @@ const update = () => {
   {/each}
 
   {#each [...$splitBarItems] as node}
-    <SplitBar node="{node[1]}" update="{update}" />
+    <SplitBar
+      node="{node[1]}"
+      boundingBox="{node[1].boundingBox}"
+      update="{update}" />
   {/each}
 </main>
