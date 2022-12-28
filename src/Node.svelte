@@ -45,7 +45,7 @@ export let node: MosaicNode;
         {node?.parent.id}</span>
     </p>
   {/if}
-  {#if node.location === "first"}
+  <!-- {#if node.location === "first"}
     {node.parent}
     <div
       class="{`${
@@ -54,5 +54,5 @@ export let node: MosaicNode;
           : 'bottom-[-6px] h-[7px] w-full'
       }  absolute  z-10 bg-red-500`}">
     </div>
-  {/if}
+  {/if} -->
 </div>

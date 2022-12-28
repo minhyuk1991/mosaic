@@ -2,26 +2,34 @@
 import { writable } from "svelte/store";
 import { MosaicNode } from "./mosaic";
 import Node from "./Node.svelte";
+import SplitBar from "./SplitBar.svelte";
 
 const test = new MosaicNode().init();
-const items = writable(test.root.renderTargetList);
+const nodeItems = writable(test.root.nodeRendertList);
+const splitBarItems = writable(test.root.splitBarRenderList);
+
 // test.first.split();
 // test.first.first.split();
 // test.first.first.first.split();
 // test.first.first.first.first.delete();
-console.log(test);
+console.log($splitBarItems);
 const update = () => {
-  test.root.renderTargetList.clear();
-  test.root.getRenderList();
-  $items = test.root.renderTargetList;
+  test.root.nodeRendertList.clear();
+  test.root.splitBarRenderList.clear();
+  test.root.getNodeRenderList();
+  test.root.getSplitBarRenderList();
+  $nodeItems = test.root.nodeRendertList;
+  $splitBarItems = test.root.splitBarRenderList;
 };
-console.log($items);
+// console.log($nodeItems);
 </script>
 
 <main class="h-full w-full text-lg text-green-400">
-  {#each [...$items] as item}
-    {#if item[1].type === "child"}
-      <Node node="{item[1]}" update="{update}" />
-    {/if}
+  {#each [...$nodeItems] as item}
+    <Node node="{item[1]}" update="{update}" />
+  {/each}
+
+  {#each [...$splitBarItems] as node}
+    <SplitBar node="{node[1]}" update="{update}" />
   {/each}
 </main>
