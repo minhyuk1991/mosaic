@@ -8,13 +8,7 @@ $: {
   (left = node.boundingBox.left),
   (right = node.boundingBox.right),
   (bottom = node.boundingBox.bottom)),
-    console.log("node에서 nod값 반응함", node.parent),
     [node];
-}
-
-$: {
-  console.log("toptoptoptoptoptop", top);
-  [node];
 }
 </script>
 
@@ -33,6 +27,12 @@ $: {
         update();
       }}">
       delete</button>
+    <button
+      on:click="{() => {
+        node.updateSplitPercentOrder();
+        update();
+      }}">
+      node</button>
   </div>
   <p>
     <span>node direction:</span><span class=" text-red-500">

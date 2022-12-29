@@ -6,9 +6,9 @@ export let update: () => void;
 export let node: MosaicNode;
 export let boundingBox: MosaicNode["boundingBox"];
 
-$: {
-  boundingBox = node.boundingBox;
-}
+// $: {
+//   boundingBox = node.boundingBox;
+// }
 console.log("node", node, node.direction === "row");
 console.log("render split bar");
 console.log(node.splitPercent * 0.01);
@@ -45,6 +45,8 @@ const mouseupHandler = (
     console.log(isMouseDown);
     isMouseDown = false;
     console.log("mouseup isMouseDown end", isMouseDown);
+    document.removeEventListener("mousemove", mousemoveHandler);
+    document.removeEventListener("mouseup", mouseupHandler);
   }
 };
 
@@ -53,50 +55,170 @@ const mousemoveHandler = (e) => {
     const { top, bottom, left, right } = boundingBox;
     const width = 100 - left - right;
     const height = 100 - top - bottom;
-    console.log(width, height);
-    const [start, end] = [
-      {
-        x: width === 100 ? 0 : window.innerWidth * left * 0.01,
-        y: height === 100 ? 0 : window.innerHeight * top * 0.01,
-      },
-      {
-        x: width === 100 ? window.innerWidth : window.innerWidth * right * 0.01,
-        y:
-          height === 100
-            ? window.innerHeight
-            : window.innerHeight * bottom * 0.01,
-      },
-    ];
-    console.log(start, end);
-    console.log(e.clientX, e.clientY);
-    if (node.direction === "row") {
-      if (
-        e.clientX > start.x &&
-        e.clientY > start.y &&
-        e.clientX < end.x &&
-        e.clientY < end.y
-      ) {
-        node.splitPercent = (e.clientX / window.innerWidth) * 100;
-        console.log("node.splitPercent", node.splitPercent);
-        node.updateSplitPercentOrder();
-        update();
-      }
 
-      console.log((e.clientX / width) * 100);
+    const isRowFirst = node.location === "first" && node.direction === "row";
+    const isRowSecond = node.location === "second" && node.direction === "row";
+    const isColumnFirst =
+      node.location === "first" && node.direction === "column";
+    const isColumnSecond =
+      node.location === "second" && node.direction === "column";
+    node.location === "second" && node.direction === "column";
+    const currentMouseX = (e.clientX / window.innerWidth) * 100;
+    const currentMouseY = (e.clientY / window.innerHeight) * 100;
+
+    if (isRowFirst) {
+      const [start, end] = [
+        {
+          x: (() => {
+            if (width === 100) {
+              return 0;
+            }
+            if (width !== 100) {
+              return left;
+            }
+          })(),
+          y: (() => {
+            if (height === 100) {
+              return 0;
+            }
+            if (height !== 100) {
+              return top + height;
+            }
+          })(),
+        },
+        {
+          x: (() => {
+            if (width === 100) {
+              return 100;
+            }
+            if (width !== 100) {
+              return left;
+            }
+          })(),
+          y: (() => {
+            if (height === 100) {
+              return height;
+            }
+            if (height !== 100) {
+              return top + height;
+            }
+          })(),
+        },
+      ];
+      render(currentMouseX, currentMouseY, start, end);
     }
-    if (node.direction === "column") {
-      if (
-        e.clientX > start.x &&
-        e.clientY > start.y &&
-        e.clientX < end.x &&
-        e.clientY < end.y
-      ) {
-        node.splitPercent = (e.clientY / window.innerHeight) * 100;
-        console.log("node.splitPercent", node.splitPercent);
-        node.updateSplitPercentOrder();
+    if (isRowSecond) {
+    }
+    if (isColumnFirst) {
+    }
+    if (isColumnSecond) {
+    }
+
+    function render(
+      mx: number,
+      my: number,
+      start: { x: number; y: number },
+      end: { x: number; y: number }
+    ) {
+      node.splitPercent = (e.clientX / window.innerWidth) * 100;
+      node.resizingOrder();
+      if (mx > start.x && my > start.y && mx < end.x && my < end.y) {
+        node.splitPercent = (e.clientX / window.innerWidth) * 100;
+        node.resizingOrder();
         update();
       }
     }
+    // if (isRowFirst) {
+    //   console.log("isRowFirst");
+    //   console.log(
+    //     width === 100 ? 0 : window.innerWidth * (100 - right - left * 0.01)
+    //   );
+    //   const [start, end] = [
+    //     {
+    //       x:
+    //         width === 100
+    //           ? 0
+    //           : window.innerWidth * (100 - right - left * 0.01) * 0.01,
+    //       y: height === 100 ? 0 : window.innerHeight * top * 0.01,
+    //     },
+    //     {
+    //       x:
+    //         width === 100
+    //           ? window.innerWidth
+    //           : window.innerWidth * right * 0.01,
+    //       y:
+    //         height === 100
+    //           ? window.innerHeight
+    //           : window.innerHeight * bottom * 0.01,
+    //     },
+    //   ];
+    //   if (
+    //     e.clientX > start.x &&
+    //     e.clientY > start.y &&
+    //     e.clientX < end.x &&
+    //     e.clientY < end.y
+    //   ) {
+    //     node.splitPercent = (e.clientX / window.innerWidth) * 100;
+    //     console.log("node.splitPercent", node.splitPercent);
+    //     node.resizingOrder();
+    //     update();
+    //   }
+    //   console.log((e.clientX / width) * 100);
+    // }
+
+    // if (isRowSecond) {
+    //   console.log("isRowSecond");
+    //   const [start, end] = [
+    //     {
+    //       x: width === 100 ? 0 : window.innerWidth * right * 0.01,
+    //       y: height === 100 ? 0 : window.innerHeight * top * 0.01,
+    //     },
+    //     {
+    //       x:
+    //         width === 100
+    //           ? window.innerWidth
+    //           : window.innerWidth * right * 0.01,
+    //       y:
+    //         height === 100
+    //           ? window.innerHeight
+    //           : window.innerHeight * bottom * 0.01,
+    //     },
+    //   ];
+    //   if (
+    //     e.clientX > start.x &&
+    //     e.clientY > start.y &&
+    //     e.clientX < end.x &&
+    //     e.clientY < end.y
+    //   ) {
+    //     node.splitPercent = (e.clientX / window.innerWidth) * 100;
+    //     console.log("node.splitPercent", node.splitPercent);
+    //     node.resizingOrder();
+    //     update();
+    //   }
+    //   console.log((e.clientX / width) * 100);
+    // }
+
+    // if (isColumnFirst) {
+    //   console.log("isColumnFirst");
+    //   if (node.direction === "column") {
+    //     if (
+    //       e.clientX > start.x &&
+    //       e.clientY > start.y &&
+    //       e.clientX < end.x &&
+    //       e.clientY < end.y
+    //     ) {
+    //       node.splitPercent = (e.clientY / window.innerHeight) * 100;
+    //       console.log("node.splitPercent", node.splitPercent);
+
+    //       node.resizingOrder();
+
+    //       update();
+    //     }
+    //   }
+    // }
+
+    // if (isColumnSecond) {
+    // }
   }
 };
 

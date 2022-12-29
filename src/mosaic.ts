@@ -32,13 +32,8 @@ export class MosaicNode {
     this.nodeRendertList = parent ? parent.nodeRendertList : new Map();
     this.splitBarRenderList = parent ? parent.splitBarRenderList : new Map();
     this.location = location ? location : "first";
-    this.direction = getdirection(parent);
-    this.boundingBox = getBoundingBox(
-      this.parent,
-      parent ? parent.direction : "row",
-      this.splitPercent,
-      this.location
-    );
+    this.direction = this.getParentDirection();
+    this.boundingBox = this.getBoundingBox();
     console.log(this.direction);
   }
   init() {
@@ -104,13 +99,7 @@ export class MosaicNode {
     }
   }
   updateSplitPercentOrder() {
-    this.boundingBox = getBoundingBox(
-      this.parent,
-      this.direction,
-      this.splitPercent,
-      this.location
-    );
-    console.log("updateSplitPercentOrder");
+    this.boundingBox = this.getBoundingBox();
     if (this.hasChild()) {
       if (this.first) {
         this.first.nodeRenderListCheckOrder();
@@ -198,14 +187,101 @@ export class MosaicNode {
     if (this.isReplica) deleteFunctions.reflicaCase(this);
   }
 
+  getParentDirection() {
+    const parent = this.parent;
+    if (!parent) return "row";
+    if (parent && parent.id === "master") {
+      return "row";
+    }
+    const result = parent.direction === "row" ? "column" : "row";
+
+    return result;
+  }
+
+  resizingOrder() {
+    console.log("resizingOrder", this.id);
+    this.boundingBox = this.getBoundingBox();
+    if (this.first) {
+      console.log("======================first======================");
+      this.first.boundingBox = this.first.getBoundingBox();
+    }
+    if (this.second) {
+      console.log("======================second======================");
+      this.second.boundingBox = this.second.getBoundingBox();
+    }
+  }
+
+  getBoundingBox() {
+    console.log("getBoundingBox");
+    const rootAndRootFristNode =
+      this.id === "master" || this.parent.id === "master";
+    if (rootAndRootFristNode) {
+      console.log("getBoundingBox rootAndRootFristNode");
+      return {
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
+      };
+    }
+    if (!rootAndRootFristNode) {
+      console.log("getBoundingBox !rootAndRootFristNode");
+      const parentSplitPercent = this.parent.splitPercent;
+      const parentDirection = this.parent.direction;
+      const { top, right, bottom, left } = this.parent.boundingBox;
+      const parentWidth = 100 - right - left;
+      const parentHeight = 100 - top - bottom;
+      const currentItemLocation = this.location;
+
+      console.log("parentSize", parentWidth, parentHeight);
+      const rowAndFirstCase =
+        parentDirection === "row" && currentItemLocation === "first";
+      const rowAndSecondCase =
+        parentDirection === "row" && currentItemLocation === "second";
+      const columnAndFirstCase =
+        parentDirection === "column" && currentItemLocation === "first";
+      const columnAndSecondCase =
+        parentDirection === "column" && currentItemLocation === "second";
+
+      console.log("this first", this.first);
+
+      if (rowAndFirstCase) {
+        console.log("split", parentSplitPercent);
+        console.log("first:", right + parentWidth * parentSplitPercent * 0.01);
+        console.log("second:", left + parentWidth * parentSplitPercent * 0.01);
+        return {
+          ...this.parent.boundingBox,
+          right: (right + parentWidth) * (100 - parentSplitPercent) * 0.01,
+        };
+      }
+      if (rowAndSecondCase) {
+        return {
+          ...this.parent.boundingBox,
+          left: left + parentWidth * parentSplitPercent * 0.01,
+        };
+      }
+
+      if (columnAndFirstCase) {
+        console.log(bottom + parentHeight * parentSplitPercent * 0.01);
+        return {
+          ...this.parent.boundingBox,
+          // bottom: bottom + parentHeight * parentSplitPercent * 0.01,
+          bottom: (bottom + parentHeight) * (100 - parentSplitPercent) * 0.01,
+        };
+      }
+      if (columnAndSecondCase) {
+        console.log(top + parentHeight * (100 - parentSplitPercent * 0.01));
+        return {
+          ...this.parent.boundingBox,
+          top: top + parentHeight * parentSplitPercent * 0.01,
+        };
+      }
+    }
+  }
   insert(insertNode: MosaicNode, order: "first" | "second") {
     const { originNode } = findOriginLocation(this.origin.id, this);
-    // const tempFirst = originNode.first;
-    // const tempSecond = originNode.second;
     insertNode.parent = originNode.parent;
     insertNode.location = order;
-    // insertNode.first = tempFirst;
-    // insertNode.second = tempSecond;
     originNode.parent[order] = insertNode;
     insertNode.type = "parent";
     insertNode[order] = new MosaicNode(this, order, true);
@@ -270,183 +346,9 @@ const findOriginLocation = (originId: string, node: MosaicNode) => {
   return { manyUp, originNode, isFirst, isSecond };
 };
 
-function getBoundingBox(
-  parent: MosaicNode,
-  direction,
-  splitPercent: number,
-  location: "first" | "second"
-) {
-  console.log("getBoundingBox 동작");
-  if (parent === null) {
-    return { top: 0, bottom: 0, left: 0, right: 0 };
-  }
-  if (parent.id === "master") {
-    return { top: 0, bottom: 0, left: 0, right: 0 };
-  }
-  if (parent.parent.id === "master") {
-    if (direction === "column" && location === "first") {
-      return {
-        ...parent.boundingBox,
-        bottom: 100 - splitPercent,
-      };
-    }
-    if (direction === "column" && location === "second") {
-      return {
-        ...parent.boundingBox,
-        top: 100 - splitPercent,
-      };
-    }
-    if (direction === "row" && location === "first") {
-      return {
-        ...parent.boundingBox,
-        right: 100 - splitPercent,
-      };
-    }
-    if (direction === "row" && location === "second") {
-      return {
-        ...parent.boundingBox,
-        left: 100 - splitPercent,
-      };
-    }
-  }
-  if (parent.id !== "master") {
-    const result = split(
-      parent.boundingBox,
-      parent.splitPercent,
-      parent.direction
-    );
-    return result[location];
-  }
-}
-
 export interface Split {
   first: BoundingBox;
   second: BoundingBox;
 }
-// export interface Styles {
-//   top: string;
-//   right: string;
-//   bottom: string;
-//   left: string;
-// }
+
 type BoundingBox = { top: number; bottom: number; left: number; right: number };
-export function split(
-  boundingBox: BoundingBox,
-  relativeSplitPercentage: number,
-  direction: "row" | "column"
-) {
-  console.log("absolutePercentage11");
-
-  const absolutePercentage = getAbsoluteSplitPercentage(
-    boundingBox,
-    relativeSplitPercentage,
-    direction
-  );
-  if (direction === "column") {
-    return {
-      first: {
-        ...boundingBox,
-        bottom: 100 - absolutePercentage,
-      },
-      second: {
-        ...boundingBox,
-        top: absolutePercentage,
-      },
-    };
-  } else if (direction === "row") {
-    return {
-      first: {
-        ...boundingBox,
-        right: 100 - absolutePercentage,
-      },
-      second: {
-        ...boundingBox,
-        left: absolutePercentage,
-      },
-    };
-  } else {
-    return assertNever(direction);
-  }
-}
-
-function getSize(node: MosaicNode, order: "first" | "second") {
-  const fullSizeCase =
-    !this.getIsSameNode(this.root.first) && !this.getIsSameNode(this.root);
-  if (fullSizeCase) {
-    return {
-      top: 0,
-      right: 0,
-      bottom: 0,
-      left: 0,
-    };
-  }
-
-  const { top, bottom, left, right } = node.parent.boundingBox;
-  const parentWidth = 100 - left - right;
-  const parentHeigth = 100 - top - bottom;
-
-  if (node.direction === "column") {
-  }
-}
-
-export function getAbsoluteSplitPercentage(
-  boundingBox: BoundingBox | null = null,
-  relativeSplitPercentage: number,
-  direction: "row" | "column"
-): number {
-  const { top, right, bottom, left } = boundingBox || {
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
-  };
-  if (direction === "column") {
-    const height = 100 - top - bottom;
-    return (height * relativeSplitPercentage) / 100 + top;
-  } else if (direction === "row") {
-    const width = 100 - right - left;
-    return (width * relativeSplitPercentage) / 100 + left;
-  } else {
-    return assertNever(direction);
-  }
-}
-
-export function getRelativeSplitPercentage(
-  boundingBox: BoundingBox,
-  absoluteSplitPercentage: number,
-  direction: "row" | "column"
-): number {
-  const { top, right, bottom, left } = boundingBox;
-  if (direction === "column") {
-    const height = 100 - top - bottom;
-    return ((absoluteSplitPercentage - top) / height) * 100;
-  } else if (direction === "row") {
-    const width = 100 - right - left;
-    return ((absoluteSplitPercentage - left) / width) * 100;
-  } else {
-    return assertNever(direction);
-  }
-}
-
-export function asStyles({ top, right, bottom, left }: BoundingBox) {
-  return {
-    top: `${top}%`,
-    right: `${right}%`,
-    bottom: `${bottom}%`,
-    left: `${left}%`,
-  };
-}
-export function assertNever(shouldBeNever: never): never {
-  throw new Error("Unhandled case: " + JSON.stringify(shouldBeNever));
-}
-
-function getdirection(parent: MosaicNode) {
-  console.log("getdirection");
-  if (!parent) return "row";
-  if (parent && parent.id === "master") {
-    return "row";
-  }
-  const result = parent.direction === "row" ? "column" : "row";
-
-  return result;
-}
