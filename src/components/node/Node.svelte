@@ -1,5 +1,6 @@
 <script lang="ts">
 import type { MosaicNode } from "../../mosaic";
+import NodeHeader from "./NodeHeader.svelte";
 export let update: () => void;
 export let node: MosaicNode;
 let { top, bottom, right, left } = node.boundingBox;
@@ -15,6 +16,7 @@ $: {
 <div
   style="{`inset: ${top}% ${right}% ${bottom}% ${left}%`}"
   class="absolute m-[3px] select-none bg-black text-sm">
+  <NodeHeader node="{node}" update="{update}" />
   <div class="relative z-10">
     <button
       on:click="{() => {

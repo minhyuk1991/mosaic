@@ -2,6 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
+* {
+  font-family: -apple-system, BlinkMacSystemFont, Roboto, Oxygen, Ubuntu,
+    Cantarell, Open Sans, Helvetica Neue, blueprint-icons-16, sans-serif;
+}
+
 body,
 html {
   width: 100%;
@@ -12,4 +17,31 @@ html {
   height: 100%;
   position: relative;
   overflow: hidden;
+}
+
+.sr_only {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  margin: 0 !important;
+  font-size: 0;
+  line-height: 0;
+  overflow: hidden;
+}
+
+.item__header:hover {
+  background: linear-gradient(180deg, #fff, #e4e4e4);
+}
+
+.item__header {
+  box-shadow: 0 1px 1px rgb(17 20 24 / 15%);
+  border-top-right-radius: 2px;
+  border-top-left-radius: 2px;
+  background: white;
+  color: black;
+}
+
+.item__header .item__header--button__area button:hover {
+  background: rgba(143, 153, 168, 0.15);
 }

@@ -18,7 +18,7 @@ const update = () => {
 };
 </script>
 
-<main class="h-full w-full text-lg text-green-400">
+<main class="h-full w-full bg-[#abb3bf] text-lg text-green-400">
   {#each [...$nodeItems] as item}
     <Node node="{item[1]}" update="{update}" />
   {/each}
