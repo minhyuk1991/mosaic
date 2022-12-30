@@ -1,5 +1,6 @@
 <script lang="ts">
 import type { MosaicNode } from "../../mosaic";
+import NodeBody from "./NodeBody.svelte";
 import NodeHeader from "./NodeHeader.svelte";
 export let update: () => void;
 export let node: MosaicNode;
@@ -16,31 +17,7 @@ $: {
 
 <div
   style="{`inset: ${top}% ${right}% ${bottom}% ${left}%`}"
-  class="absolute m-[3px] select-none bg-black text-sm">
+  class="absolute m-[3px] flex select-none flex-col bg-[#f6f7f9] text-sm">
   <NodeHeader node="{node}" update="{update}" floatNode="{floatNode}" />
-  <p>
-    <span>node direction:</span><span class=" text-red-500">
-      {node.direction}</span>
-  </p>
-  <p>
-    <span>node Id:</span><span class=" text-yellow-400"> {node.id}</span>
-  </p>
-  {#if node?.origin?.id}
-    <p>
-      <span>origin Id:</span><span class=" text-red-500">
-        {node?.origin.id}</span>
-    </p>
-  {/if}
-  {#if !node?.origin?.id}
-    <p>
-      <span>parent Id:</span><span class=" text-red-500">
-        {node.parent.id}</span>
-    </p>
-  {/if}
-  {#if node?.parent?.id}
-    <p>
-      <span>parent Id:</span><span class=" text-red-500">
-        {node?.parent.id}</span>
-    </p>
-  {/if}
+  <NodeBody node="{node}" />
 </div>

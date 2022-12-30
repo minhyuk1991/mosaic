@@ -83,7 +83,7 @@ onDestroy(() => {
   const split_bar = document.querySelector(`#split_bar_${node.id}`);
   document.removeEventListener("mouseup", mouseupHandler);
   document.removeEventListener("mousemove", mousemoveHandler);
-  split_bar.removeEventListener("mousedown", mousedownHandler);
+  if (split_bar) split_bar.removeEventListener("mousedown", mousedownHandler);
 });
 </script>
 

@@ -60,8 +60,13 @@ export class MosaicNode {
   }
 
   getSibilingNode() {
-    const isFirst = this.parent.first.id === this.id;
-    return this.parent[isFirst ? "second" : "first"];
+    console.log("getSibilingNode");
+    console.log("this", this);
+    if (this.parent.first || this.parent.second) {
+      console.log();
+      const isFirst = this.parent.first.id === this.id;
+      return this.parent[isFirst ? "second" : "first"];
+    }
   }
 
   getReflica() {
@@ -179,6 +184,7 @@ export class MosaicNode {
       this.type = "parent";
       this.root.splitBarRenderList.set(this.id, this);
       this.root.getSplitBarRenderList();
+      console.log("====split 완료===", this);
     }
     console.log(this.root);
   }
@@ -275,27 +281,79 @@ export class MosaicNode {
     originNode.parent = insertNode;
     originNode.location = order === "first" ? "second" : "first";
   }
+  parentLinkClear() {
+    this.parent.first = null;
+    this.parent.second = null;
+  }
+  isRootFirstNode() {
+    console.log("isRootFirstNode");
+    return this.root.first.id === this.id;
+  }
+  hasChildNode(id) {
+    if (this.first.id === id) {
+      return { has: true, node: this.first, location: "first" };
+    }
+    if (this.first.id === id) {
+      return { has: true, node: this.first, location: "second" };
+    }
+    return { has: false, node: null, location: null };
+  }
 }
+
 const deleteFunctions = {
   reflicaCase: (node: MosaicNode) => {
+    const rootNode = node.root;
     console.log("reflicaCase");
+
     //복제된 노드라면, 원본 노드를 찾음 (originNode)
-    const { manyUp, originNode, isFirst, isSecond } = findOriginLocation(
-      node.origin.id,
-      node
-    );
-    const nextOriginNode =
-      node.parent.first?.id === node.id
-        ? node.parent.first
-        : node.parent.second;
-    node.parent.first = null;
-    node.parent.second = null;
-    console.log("덮어쓸 노드아이디", nextOriginNode.id);
-    originNode.changeOriginInfo(nextOriginNode);
-    node.parent.type = "child";
-    console.log(node.root);
+
+    //
+    node.parentLinkClear();
+    if (node.origin.isRootFirstNode()) {
+      //다음 루트 퍼스트
+      const tempNextRootFirstNode = node.getSibilingNode();
+      console.log(node.origin);
+      console.log(rootNode);
+      const nextRootFirstSecondLocation =
+        node.origin.first.origin.id === node.origin.id ? "second" : "first";
+      const nextRootFirstSecondNode = node.origin[nextRootFirstSecondLocation];
+
+      console.log("isRootFirstNode");
+      //루트퍼스트 -루트노드 연결
+      rootNode.first = tempNextRootFirstNode;
+      tempNextRootFirstNode.parent = rootNode;
+      tempNextRootFirstNode.boundingBox = {
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
+      };
+      tempNextRootFirstNode.type = "parent";
+      tempNextRootFirstNode.first = new MosaicNode(tempNextRootFirstNode);
+      tempNextRootFirstNode.second = nextRootFirstSecondNode;
+      rootNode.getNodeRenderList();
+      rootNode.resizingOrder();
+      console.log(rootNode);
+    }
+
+    // if (!originNode.isRootFirstNode()) {
+    // }
+    // node.parent.first = nextOriginNode;
+    // nextOriginNode.type = "parent";
+    // nextOriginNode.parent = node.parent;
+    // nextOriginNode.first = new MosaicNode(nextOriginNode);
+    // nextOriginNode.second = node.parent.second;
+    // console.log(node.parent);
+    // node.parent.second.parent = node.parent;
+
+    // if (node.isRootFirstNode()) {
+    //   node.root.first = nextOriginNode;
+    // }
   },
   nomalCase: (node: MosaicNode) => {
+    if (node.isRootFirstNode && !node.hasChild) {
+      return;
+    }
     console.log("nomal case");
     if (node.parent.id === "master") return;
     if (!node.isReplica) {
