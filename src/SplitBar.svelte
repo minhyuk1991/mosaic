@@ -126,5 +126,11 @@ onDestroy(() => {
       : 'bottom-[-6px] h-[7px] translate-y-[-50%]'
   }  absolute  z-10   bg-red-500 
   
-  ${isMouseDown ? 'bg-orange-400' : ''}`} cursor-pointer">
+  ${isMouseDown ? 'bg-orange-400' : ''}
+  
+  ${node.direction === 'row' ? 'cursor-ew-resize' : 'cursor-ns-resize'}
+  `} 
+  
+
+  ">
 </div>
