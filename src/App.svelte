@@ -8,10 +8,6 @@ const test = new MosaicNode().init();
 const nodeItems = writable(test.root.nodeRendertList);
 const splitBarItems = writable(test.root.splitBarRenderList);
 
-// test.first.split();
-// test.first.first.split();
-// test.first.first.first.split();
-// test.first.first.first.first.delete();
 const update = () => {
   test.root.nodeRendertList.clear();
   test.root.splitBarRenderList.clear();
@@ -19,10 +15,7 @@ const update = () => {
   test.root.getSplitBarRenderList();
   $nodeItems = test.root.nodeRendertList;
   $splitBarItems = test.root.splitBarRenderList;
-  console.log(test.root);
 };
-
-// console.log($nodeItems);
 </script>
 
 <main class="h-full w-full text-lg text-green-400">

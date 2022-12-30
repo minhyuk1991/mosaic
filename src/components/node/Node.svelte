@@ -1,5 +1,5 @@
 <script lang="ts">
-import type { MosaicNode } from "./mosaic";
+import type { MosaicNode } from "../../mosaic";
 export let update: () => void;
 export let node: MosaicNode;
 let { top, bottom, right, left } = node.boundingBox;

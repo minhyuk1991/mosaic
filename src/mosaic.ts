@@ -174,6 +174,7 @@ export class MosaicNode {
     if (isNoChild) {
       //새로운 노드 생성, first는 항상 replica
       this.first = new MosaicNode(this, "first", true);
+      console.log(this.first.boundingBox);
       this.second = new MosaicNode(this, "second");
       this.type = "parent";
       this.root.splitBarRenderList.set(this.id, this);
@@ -199,24 +200,20 @@ export class MosaicNode {
   }
 
   resizingOrder() {
-    console.log("resizingOrder", this.id);
     this.boundingBox = this.getBoundingBox();
+    console.log("resizingOrder", this.id);
     if (this.first) {
-      console.log("======================first======================");
-      this.first.boundingBox = this.first.getBoundingBox();
+      this.first.resizingOrder();
     }
     if (this.second) {
-      console.log("======================second======================");
-      this.second.boundingBox = this.second.getBoundingBox();
+      this.second.resizingOrder();
     }
   }
 
   getBoundingBox() {
-    console.log("getBoundingBox");
     const rootAndRootFristNode =
       this.id === "master" || this.parent.id === "master";
     if (rootAndRootFristNode) {
-      console.log("getBoundingBox rootAndRootFristNode");
       return {
         top: 0,
         right: 0,
@@ -225,15 +222,12 @@ export class MosaicNode {
       };
     }
     if (!rootAndRootFristNode) {
-      console.log("getBoundingBox !rootAndRootFristNode");
       const parentSplitPercent = this.parent.splitPercent;
       const parentDirection = this.parent.direction;
       const { top, right, bottom, left } = this.parent.boundingBox;
       const parentWidth = 100 - right - left;
       const parentHeight = 100 - top - bottom;
       const currentItemLocation = this.location;
-
-      console.log("parentSize", parentWidth, parentHeight);
       const rowAndFirstCase =
         parentDirection === "row" && currentItemLocation === "first";
       const rowAndSecondCase =
@@ -243,15 +237,10 @@ export class MosaicNode {
       const columnAndSecondCase =
         parentDirection === "column" && currentItemLocation === "second";
 
-      console.log("this first", this.first);
-
       if (rowAndFirstCase) {
-        console.log("split", parentSplitPercent);
-        console.log("first:", right + parentWidth * parentSplitPercent * 0.01);
-        console.log("second:", left + parentWidth * parentSplitPercent * 0.01);
         return {
           ...this.parent.boundingBox,
-          right: (right + parentWidth) * (100 - parentSplitPercent) * 0.01,
+          right: right + parentWidth * (100 - parentSplitPercent) * 0.01,
         };
       }
       if (rowAndSecondCase) {
@@ -262,15 +251,12 @@ export class MosaicNode {
       }
 
       if (columnAndFirstCase) {
-        console.log(bottom + parentHeight * parentSplitPercent * 0.01);
         return {
           ...this.parent.boundingBox,
-          // bottom: bottom + parentHeight * parentSplitPercent * 0.01,
-          bottom: (bottom + parentHeight) * (100 - parentSplitPercent) * 0.01,
+          bottom: bottom + parentHeight * (100 - parentSplitPercent) * 0.01,
         };
       }
       if (columnAndSecondCase) {
-        console.log(top + parentHeight * (100 - parentSplitPercent * 0.01));
         return {
           ...this.parent.boundingBox,
           top: top + parentHeight * parentSplitPercent * 0.01,
