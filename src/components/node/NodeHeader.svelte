@@ -1,13 +1,18 @@
-<script>
+<script lang="ts">
+import type { MosaicNode } from "../../mosaic";
 import IconCross from "./icons/IconCross.svelte";
 import IconSplit from "./icons/IconSplit.svelte";
 
 export let update;
 export let node;
+export let floatNode: (node: MosaicNode) => void;
 </script>
 
 <div class="item__header flex cursor-move">
   <div
+    on:click="{() => {
+      floatNode(node);
+    }}"
     class="item__header--title__area flex h-[30px] flex-1 items-center pl-[10px] text-[14px] font-semibold leading-[30px]">
     Window
   </div>

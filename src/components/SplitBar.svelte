@@ -1,7 +1,7 @@
 <script lang="ts">
 import { onMount, onDestroy } from "svelte";
 import { component_subscribe } from "svelte/internal";
-import type { MosaicNode } from "./mosaic";
+import type { MosaicNode } from "../mosaic";
 
 export let update: () => void;
 export let node: MosaicNode;
@@ -124,9 +124,9 @@ onDestroy(() => {
     node?.direction === 'row'
       ? 'right-[-6px] top-0 w-[6px] translate-x-[-50%]'
       : 'bottom-[-6px] h-[7px] translate-y-[-50%]'
-  }  absolute  z-10   bg-red-500 
+  }  absolute  z-10 bg-transparent 
   
-  ${isMouseDown ? 'bg-orange-400' : ''}
+  ${isMouseDown ? 'bg-blue-500' : ''}
   
   ${node.direction === 'row' ? 'cursor-ew-resize' : 'cursor-ns-resize'}
   `} 

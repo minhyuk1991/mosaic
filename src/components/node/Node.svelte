@@ -3,6 +3,7 @@ import type { MosaicNode } from "../../mosaic";
 import NodeHeader from "./NodeHeader.svelte";
 export let update: () => void;
 export let node: MosaicNode;
+export let floatNode: (node: MosaicNode) => void;
 let { top, bottom, right, left } = node.boundingBox;
 $: {
   ((top = node.boundingBox.top),
@@ -16,26 +17,7 @@ $: {
 <div
   style="{`inset: ${top}% ${right}% ${bottom}% ${left}%`}"
   class="absolute m-[3px] select-none bg-black text-sm">
-  <NodeHeader node="{node}" update="{update}" />
-  <div class="relative z-10">
-    <button
-      on:click="{() => {
-        node.split();
-        update();
-      }}">split</button>
-    <button
-      on:click="{() => {
-        node.delete();
-        update();
-      }}">
-      delete</button>
-    <button
-      on:click="{() => {
-        node.updateSplitPercentOrder();
-        update();
-      }}">
-      node</button>
-  </div>
+  <NodeHeader node="{node}" update="{update}" floatNode="{floatNode}" />
   <p>
     <span>node direction:</span><span class=" text-red-500">
       {node.direction}</span>
@@ -61,14 +43,4 @@ $: {
         {node?.parent.id}</span>
     </p>
   {/if}
-  <!-- {#if node.location === "first"}
-    {node.parent}
-    <div
-      class="{`${
-        node?.parent?.direction === 'row'
-          ? 'right-[-6px] top-0 h-full w-[6px]'
-          : 'bottom-[-6px] h-[7px] w-full'
-      }  absolute  z-10 bg-red-500`}">
-    </div>
-  {/if} -->
 </div>
