@@ -1,7 +1,7 @@
 <script lang="ts">
 import { writable } from "svelte/store";
 import { MosaicNode } from "./mosaic";
-import Node from "./Node.svelte";
+import Node from "./components/node/Node.svelte";
 import SplitBar from "./SplitBar.svelte";
 
 const test = new MosaicNode().init();
