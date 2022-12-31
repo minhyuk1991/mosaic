@@ -129,7 +129,21 @@ export class MosaicNode {
       }
     }
   }
+  findChildNodeById(id: string) {
+    const hasChild = this.hasChild;
+    if (!hasChild) {
+      return;
+    }
 
+    if (hasChild) {
+      const result =
+        this.first.id === id
+          ? this.first
+          : this.second.id === id
+          ? this.second
+          : null;
+    }
+  }
   changeOriginInfo(node: MosaicNode) {
     console.log("인자 전달받은 아이디", node.id);
     if (!this.isReplica) {
@@ -302,22 +316,40 @@ export class MosaicNode {
 
 const deleteFunctions = {
   reflicaCase: (node: MosaicNode) => {
+    const root = node.root;
+    const rootFirstNode = node.root.first;
+    //reflica (node)가 rootFirstNode 직게 자식으로 있는지 확인
+    const IsRootFirstChild = rootFirstNode.hasChildNode(node.id).has;
+    if (IsRootFirstChild) {
+      const nextRootFirstNode = node.getSibilingNode();
+      nextRootFirstNode.boundingBox = { top: 0, right: 0, bottom: 0, left: 0 };
+      root.first = nextRootFirstNode;
+      nextRootFirstNode.parent = root;
+      node.parent = null;
+      root.resizingOrder();
+      root.getNodeRenderList();
+      console.log(nextRootFirstNode.boundingBox);
+    }
+    if (!IsRootFirstChild) {
+    }
+
     const rootNode = node.root;
     console.log("reflicaCase");
 
     //복제된 노드라면, 원본 노드를 찾음 (originNode)
 
     //
-    node.parentLinkClear();
+
     if (node.origin.isRootFirstNode()) {
       //다음 루트 퍼스트
       const tempNextRootFirstNode = node.getSibilingNode();
       console.log(node.origin);
       console.log(rootNode);
+      console.log("node.origin.first", node.origin.first);
       const nextRootFirstSecondLocation =
         node.origin.first.origin.id === node.origin.id ? "second" : "first";
       const nextRootFirstSecondNode = node.origin[nextRootFirstSecondLocation];
-
+      node.parentLinkClear();
       console.log("isRootFirstNode");
       //루트퍼스트 -루트노드 연결
       rootNode.first = tempNextRootFirstNode;
