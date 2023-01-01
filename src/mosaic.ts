@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from "uuid";
 
+let data = -1;
 export class MosaicNode {
   nodeRendertList: Map<string, MosaicNode> = null;
   splitBarRenderList: Map<string, MosaicNode>;
@@ -15,6 +16,7 @@ export class MosaicNode {
   location: "first" | "second";
   direction: "row" | "column";
   boundingBox: { top: number; bottom: number; left: number; right: number };
+  data: number;
   constructor(
     parent?: MosaicNode,
     location?: "first" | "second",
@@ -34,6 +36,14 @@ export class MosaicNode {
     this.location = location ? location : "first";
     this.direction = this.getParentDirection();
     this.boundingBox = this.getBoundingBox();
+    this.data = (() => {
+      if (this.isReplica) {
+        return this.origin.data;
+      } else {
+        data = data + 1;
+        return data;
+      }
+    })();
     console.log(this.direction);
   }
   init() {
@@ -73,7 +83,7 @@ export class MosaicNode {
     return this.origin.id === this.id ? false : true;
   }
   hasChild() {
-    return this.first || this.second;
+    return this.first || this.second ? true : false;
   }
 
   getIsSameNode(node: MosaicNode) {
@@ -104,27 +114,38 @@ export class MosaicNode {
     }
   }
   updateSplitPercentOrder() {
+    console.log("before", this.boundingBox);
+    console.log("parent id", this.parent?.id);
+    console.log("parent", this.parent?.boundingBox);
+    console.log("after", this.getBoundingBox());
     this.boundingBox = this.getBoundingBox();
     if (this.hasChild()) {
       if (this.first) {
-        this.first.nodeRenderListCheckOrder();
+        this.first.updateSplitPercentOrder();
       }
       if (this.second) {
-        this.second.nodeRenderListCheckOrder();
+        this.second.updateSplitPercentOrder();
       }
     }
   }
   nodeRenderListCheckOrder() {
-    const renderTarget =
-      !this.getIsSameNode(this.root) && this.type === "child";
-    if (renderTarget) {
-      this.root.nodeRendertList.set(this.origin.id, this);
+    // console.log("nodeRenderListCheckOrder실행");
+    // console.log("현재 실행중인 노드 ", this.id);
+
+    if (this.id !== "master") {
+      if (this.type === "child") {
+        this.root.nodeRendertList.set(this.origin.id, this);
+        // console.log("랜더리스트 추가 완료!!", this.id);
+        console.log(this.root.nodeRendertList);
+      }
     }
     if (this.hasChild) {
       if (this.first) {
+        // console.log("다음 실행 예정 노드 ", this.first.id);
         this.first.nodeRenderListCheckOrder();
       }
       if (this.second) {
+        // console.log("다음 실행 예정 노드 ", this.second.id);
         this.second.nodeRenderListCheckOrder();
       }
     }
@@ -142,49 +163,31 @@ export class MosaicNode {
           : this.second.id === id
           ? this.second
           : null;
-    }
-  }
-  changeOriginInfo(node: MosaicNode) {
-    console.log("인자 전달받은 아이디", node.id);
-    if (!this.isReplica) {
-      console.log("바뀌기 전 아이디", this.id);
-      const prevReplicaOriginId = this.id;
-      this.id = node.id;
-      // this.type = node.type;
-      this.splitPercent = node.splitPercent;
-      this.isReplica = node.isReplica;
-      if (this.first && this.second) {
-        const target =
-          this.first.origin.id === prevReplicaOriginId
-            ? this.first
-            : this.second;
-        this.originInfoChangePropagationToChild(this, prevReplicaOriginId);
-      }
+      return result;
     }
   }
 
-  //받은 노드로부터 아래 자식 노드들의 origin 정보를 바꿈.
-  originInfoChangePropagationToChild(
-    originNode: MosaicNode,
-    prevReplicaOriginId: string
-  ) {
-    if (this.isReplica) {
-      this.origin = originNode;
-      if (this.first && this.second) {
-        const nextTarget =
-          this.first.origin.id === prevReplicaOriginId
-            ? this.first
-            : this.second;
-        nextTarget.originInfoChangePropagationToChild(
-          originNode,
-          prevReplicaOriginId
-        );
+  changeOriginDataOrder(tobeNode: MosaicNode) {
+    this.data = tobeNode.data;
+    if (this.hasChild) {
+      if (this.first && this.first.isReplica) {
+        this.first.changeOriginDataOrder(tobeNode);
       }
-      if (!this.first && !this.second) {
-        this.type = "child";
+      if (this.first && this.first.isReplica) {
+        this.second.changeOriginDataOrder(tobeNode);
       }
     }
   }
+  changeOriginInfo(tobeNode: MosaicNode) {
+    if (this.isReplica) {
+      throw new Error("This method is dedicated to the source node.");
+    }
+    console.log("인자 전달받은 아이디", tobeNode.id);
+    if (!this.isReplica) {
+      this.changeOriginDataOrder(tobeNode);
+    }
+  }
+
   split() {
     const isNoChild = !this.first && !this.second;
     //parent 없을 시 master node /childNode 있을 시
@@ -312,75 +315,79 @@ export class MosaicNode {
     }
     return { has: false, node: null, location: null };
   }
+  findNonReplicaChild() {
+    return this.origin.id === this.first.origin.id ? this.second : this.first;
+  }
+
+  findReflicaChildLocation(): null | "first" | "second" {
+    let location = null;
+    if (this.hasChild()) {
+      if (this.first.origin.id === this.origin.id) {
+        location = "first";
+      }
+      if (this.second.origin.id === this.origin.id) {
+        location = "second";
+      }
+    }
+    return location;
+  }
+
+  findNonReflicaChildLocation(): null | "first" | "second" {
+    let location = null;
+    if (this.hasChild()) {
+      if (this.first.origin.id !== this.origin.id) {
+        location = "first";
+      }
+      if (this.second.origin.id !== this.origin.id) {
+        location = "second";
+      }
+    }
+    return location;
+  }
+  originNodeUpdate(nextOriginNode: MosaicNode) {
+    if (this.id === this.origin.id) {
+      this.originNodeUpdateOrder(nextOriginNode);
+    } else {
+      console.log("this node not origin");
+    }
+  }
+
+  originNodeUpdateOrder(nextOriginNode: MosaicNode) {
+    const beforeOriginId = this.origin.id;
+    this.origin = nextOriginNode;
+    if (this.hasChild()) {
+      if (this.first.origin.id === beforeOriginId) {
+        this.first.originNodeUpdateOrder(nextOriginNode);
+      }
+      if (this.second.origin.id === beforeOriginId) {
+        this.second.originNodeUpdateOrder(nextOriginNode);
+      }
+    }
+  }
 }
 
 const deleteFunctions = {
   reflicaCase: (node: MosaicNode) => {
+    const origin = node.origin;
     const root = node.root;
-    const rootFirstNode = node.root.first;
-    //reflica (node)가 rootFirstNode 직게 자식으로 있는지 확인
-    const IsRootFirstChild = rootFirstNode.hasChildNode(node.id).has;
-    if (IsRootFirstChild) {
-      const nextRootFirstNode = node.getSibilingNode();
-      nextRootFirstNode.boundingBox = { top: 0, right: 0, bottom: 0, left: 0 };
-      root.first = nextRootFirstNode;
-      nextRootFirstNode.parent = root;
-      node.parent = null;
-      root.resizingOrder();
-      root.getNodeRenderList();
-      console.log(nextRootFirstNode.boundingBox);
+    const originNodeIsRootFirst = origin.id === root.first.id;
+    if (originNodeIsRootFirst) {
+      console.log("originNodeIsRootFirst");
+      const nodeIsOriginChild = origin.hasChildNode(node.id).has;
+
+      console.log("nodeIsOriginChild", nodeIsOriginChild);
+      if (nodeIsOriginChild) {
+        console.log("nodeIsOriginChild");
+        root.first = node.getSibilingNode();
+        root.first.parent = root;
+      }
+      if (!nodeIsOriginChild) {
+      }
     }
-    if (!IsRootFirstChild) {
+    if (!originNodeIsRootFirst) {
+      console.log("!originNodeIsRootFirst");
     }
-
-    const rootNode = node.root;
-    console.log("reflicaCase");
-
-    //복제된 노드라면, 원본 노드를 찾음 (originNode)
-
-    //
-
-    if (node.origin.isRootFirstNode()) {
-      //다음 루트 퍼스트
-      const tempNextRootFirstNode = node.getSibilingNode();
-      console.log(node.origin);
-      console.log(rootNode);
-      console.log("node.origin.first", node.origin.first);
-      const nextRootFirstSecondLocation =
-        node.origin.first.origin.id === node.origin.id ? "second" : "first";
-      const nextRootFirstSecondNode = node.origin[nextRootFirstSecondLocation];
-      node.parentLinkClear();
-      console.log("isRootFirstNode");
-      //루트퍼스트 -루트노드 연결
-      rootNode.first = tempNextRootFirstNode;
-      tempNextRootFirstNode.parent = rootNode;
-      tempNextRootFirstNode.boundingBox = {
-        top: 0,
-        right: 0,
-        bottom: 0,
-        left: 0,
-      };
-      tempNextRootFirstNode.type = "parent";
-      tempNextRootFirstNode.first = new MosaicNode(tempNextRootFirstNode);
-      tempNextRootFirstNode.second = nextRootFirstSecondNode;
-      rootNode.getNodeRenderList();
-      rootNode.resizingOrder();
-      console.log(rootNode);
-    }
-
-    // if (!originNode.isRootFirstNode()) {
-    // }
-    // node.parent.first = nextOriginNode;
-    // nextOriginNode.type = "parent";
-    // nextOriginNode.parent = node.parent;
-    // nextOriginNode.first = new MosaicNode(nextOriginNode);
-    // nextOriginNode.second = node.parent.second;
-    // console.log(node.parent);
-    // node.parent.second.parent = node.parent;
-
-    // if (node.isRootFirstNode()) {
-    //   node.root.first = nextOriginNode;
-    // }
+    root.updateSplitPercentOrder();
   },
   nomalCase: (node: MosaicNode) => {
     if (node.isRootFirstNode && !node.hasChild) {
@@ -392,7 +399,6 @@ const deleteFunctions = {
       const parentNode = node.parent;
       const parentReplicaNode =
         parentNode[node.location === "first" ? "second" : "first"];
-
       if (parentReplicaNode.type === "parent") {
         const tempFirst = parentReplicaNode.first;
         const tempSecond = parentReplicaNode.second;

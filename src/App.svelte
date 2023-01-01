@@ -10,6 +10,7 @@ const nodeItems = writable(test.root.nodeRendertList);
 const splitBarItems = writable(test.root.splitBarRenderList);
 const floatingNode = writable(null);
 const update = () => {
+  console.log('test.root.nodeRendertList',test.root.nodeRendertList)
   test.root.nodeRendertList.clear();
   test.root.splitBarRenderList.clear();
   test.root.getNodeRenderList();
@@ -26,6 +27,9 @@ const floatNode = (node: MosaicNode) => {
 </script>
 
 <main class="h-full w-full bg-[#abb3bf] text-lg text-green-400">
+<button class="absolute z-40" on:click="{()=>{
+  update()
+}}">ss</button>
   {#each [...$nodeItems] as item}
     <Node node="{item[1]}" update="{update}" floatNode="{floatNode}" />
   {/each}
