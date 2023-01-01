@@ -402,6 +402,7 @@ const deleteFunctions = {
         root.first.parent = root;
       }
       if (!nodeIsOriginChild) {
+        console.log("!nodeIsOriginChild");
         originParent[originLocaiton] = sibiling;
         sibiling.type = "child";
         sibiling.parent = originParent;
@@ -417,11 +418,14 @@ const deleteFunctions = {
     if (!originNodeIsRootFirst) {
       console.log("!originNodeIsRootFirst");
       if (nodeIsOriginChild) {
+        console.log("nodeIsOriginChild");
         originParent[origin.location] = sibiling;
         sibiling.location = origin.location;
         sibiling.parent = originParent;
       }
       if (!nodeIsOriginChild) {
+        console.log("!nodeIsOriginChild");
+
         const nextOriginNode = new MosaicNode(
           sibilingOrigin,
           sibilingOriginLocation,
