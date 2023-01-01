@@ -411,6 +411,7 @@ const deleteFunctions = {
         originParent[originLocation] = sibiling;
         sibiling.type = "child";
         sibiling.parent = originParent;
+        sibiling.direction = originDirection;
         sibiling[originReflicaChildLocation] = new MosaicNode(
           sibiling,
           originReflicaChildLocation,
