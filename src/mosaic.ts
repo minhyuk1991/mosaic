@@ -306,10 +306,10 @@ export class MosaicNode {
     return this.root.first.id === this.id;
   }
   hasChildNode(id) {
-    if (this.first.id === id) {
+    if (this.first && this.first.id === id) {
       return { has: true, node: this.first, location: "first" };
     }
-    if (this.first.id === id) {
+    if (this.first && this.first.id === id) {
       return { has: true, node: this.first, location: "second" };
     }
     return { has: false, node: null, location: null };
@@ -367,23 +367,28 @@ export class MosaicNode {
       }
     }
   }
+
+  changeLocationToParentNode() {
+    const parentLocation = this.parent.location;
+    this.parent = this.parent.parent;
+    this.location = parentLocation;
+    this.parent.parent[parentLocation] = this;
+  }
 }
 
 const deleteFunctions = {
   reflicaCase: (node: MosaicNode) => {
+    const parentParent = node.parent.parent;
     const origin = node.origin;
-    const originLocaiton = origin.location;
+    const originLocation = origin.location;
     const originBoundingBox = origin.boundingBox;
     const originDirection = origin.direction;
     const originParent = origin.parent;
     const root = node.root;
-    const originLocation = origin.location;
     const originReflicaChildLocation = origin.findReflicaChildLocation();
     const originNonReflicaChildLocation = origin.findNonReflicaChildLocation();
     const originReflicaChild = origin[originReflicaChildLocation];
     const originNonReflicaChild = origin[originNonReflicaChildLocation];
-    const originReflicaChildDirection = originReflicaChild.direction;
-    const originNonReflicaChildDirection = originNonReflicaChild.direction;
     const originNodeIsRootFirst = origin.id === root.first.id;
     const sibiling = node.getSibilingNode();
     const sibilingOrigin = sibiling.origin;
@@ -403,7 +408,7 @@ const deleteFunctions = {
       }
       if (!nodeIsOriginChild) {
         console.log("!nodeIsOriginChild");
-        originParent[originLocaiton] = sibiling;
+        originParent[originLocation] = sibiling;
         sibiling.type = "child";
         sibiling.parent = originParent;
         sibiling[originReflicaChildLocation] = new MosaicNode(
@@ -425,38 +430,123 @@ const deleteFunctions = {
       }
       if (!nodeIsOriginChild) {
         console.log("!nodeIsOriginChild");
+        const sibilingHasChild = sibiling.hasChild();
+        if (sibilingHasChild) {
+          console.log("sibilingHasChild");
+          const originChildChildIsNodeCase =
+            origin.id === node.parent.parent.id;
+          if (originChildChildIsNodeCase) {
+            console.log("originChildChildIsNodeCase");
+            const nextOrigin = new MosaicNode(
+              sibiling,
+              sibiling.location,
+              true
+            );
+            originParent[originLocation] = nextOrigin;
+            nextOrigin.parent = originParent;
+            nextOrigin.type = "parent";
+            nextOrigin.isReplica = false;
+            nextOrigin.origin = nextOrigin;
+            nextOrigin.location = originLocation;
+            nextOrigin.direction = originDirection;
 
-        const nextOriginNode = new MosaicNode(
-          sibilingOrigin,
-          sibilingOriginLocation,
-          true
-        );
-        //다음 원본 노드 속성변경
+            sibiling.originNodeUpdateOrder(nextOrigin);
+            sibiling.parent = nextOrigin;
+            sibiling.location = parentLocation;
+            nextOrigin[originReflicaChildLocation] = sibiling;
+            nextOrigin[originNonReflicaChildLocation] = originNonReflicaChild;
+            originNonReflicaChild.parent = nextOrigin;
+          }
+          if (!originChildChildIsNodeCase) {
+            console.log("!originChildChildIsNodeCase");
 
-        nextOriginNode.origin = nextOriginNode;
-        nextOriginNode.type = "parent";
-        nextOriginNode.isReplica = false;
-        nextOriginNode.parent = originParent;
-        nextOriginNode.boundingBox = originBoundingBox;
-        nextOriginNode.direction = originDirection;
+            const nextOrigin = new MosaicNode(sibiling, originLocation, true);
+            nextOrigin.isReplica = false;
+            nextOrigin.origin = nextOrigin;
+            nextOrigin.type = "parent";
+            nextOrigin.parent = originParent;
+            nextOrigin.location = originLocation;
+            originParent[originLocation] = nextOrigin;
+            origin.originNodeUpdateOrder(nextOrigin);
+            originReflicaChild.parent = nextOrigin;
+            originNonReflicaChild.parent = nextOrigin;
+            nextOrigin[originReflicaChildLocation] = originReflicaChild;
+            nextOrigin[originNonReflicaChildLocation] = originNonReflicaChild;
+            console.log(
+              "originNonReflicaChildLocation",
+              originNonReflicaChildLocation
+            );
 
-        //원본의 부모에 원본의 위치에 다음 원보노드 할당
-        originParent[originLocation] = nextOriginNode;
-        console.log("originLacaton:", originLocation);
-        console.log(
-          "originLacaton:",
-          originParent[originLocation] === nextOriginNode
-        );
-        //다음 원본노드의 부모를 원본 부모로 할당
+            sibiling.parent = parentParent;
+            sibiling.location = parentLocation;
+            sibiling.originNodeUpdateOrder(nextOrigin);
+            sibiling.type = "parent";
+            sibiling.isReplica = true;
+            parentParent[parentLocation] = sibiling;
+          }
 
-        //원본
-        sibilingOrigin.originNodeUpdate(nextOriginNode);
-        sibilingOrigin.isReplica = true;
-        sibilingOrigin.parent = nextOriginNode;
-        sibilingOrigin.location = parentLocation;
-        originNonReflicaChild.parent = nextOriginNode;
-        nextOriginNode[originReflicaChildLocation] = sibilingOrigin;
-        nextOriginNode[originNonReflicaChildLocation] = originNonReflicaChild;
+          // const tempSibilingData = sibiling.data;
+
+          // origin.originNodeUpdateOrder(sibiling);
+          // // origin.data = origin.origin.data;
+          // // origin.origin = origin;
+
+          // // originParent[originLocaiton].originNodeUpdate(sibiling);
+          // // sibiling.originNodeUpdateOrder(origin);
+          // // sibiling.isReplica = true;
+          // parentParent[parentLocation] = sibiling;
+          // // sibiling.parent = parentParent;
+          // sibiling.location = parentParent.location;
+          // sibiling.data = tempSibilingData;
+          // originParent[originLocaiton].originNodeUpdate(sibiling);
+        }
+        if (!sibilingHasChild) {
+          console.log("!sibilingHasChild");
+          originParent[originLocation] = sibiling;
+          sibiling.parent = originParent;
+          sibiling.type = "parent";
+          sibiling.location = originLocation;
+          sibiling.direction = originDirection;
+          originNonReflicaChild.parent = sibiling;
+          sibiling[originNonReflicaChildLocation] = originNonReflicaChild;
+          sibiling[originReflicaChildLocation] = new MosaicNode(
+            sibiling,
+            originReflicaChildLocation,
+            true
+          );
+        }
+
+        // const nextOriginNode = new MosaicNode(
+        //   sibilingOrigin,
+        //   sibilingOriginLocation,
+        //   true
+        // );
+        // //다음 원본 노드 속성변경
+
+        // nextOriginNode.origin = nextOriginNode;
+        // nextOriginNode.type = "parent";
+        // nextOriginNode.isReplica = false;
+        // nextOriginNode.parent = originParent;
+        // nextOriginNode.boundingBox = originBoundingBox;
+        // nextOriginNode.direction = originDirection;
+
+        // //원본의 부모에 원본의 위치에 다음 원보노드 할당
+        // originParent[originLocation] = nextOriginNode;
+        // console.log("originLacaton:", originLocation);
+        // console.log(
+        //   "originLacaton:",
+        //   originParent[originLocation] === nextOriginNode
+        // );
+        // //다음 원본노드의 부모를 원본 부모로 할당
+
+        // //원본
+        // sibilingOrigin.originNodeUpdate(nextOriginNode);
+        // sibilingOrigin.isReplica = true;
+        // sibilingOrigin.parent = nextOriginNode;
+        // sibilingOrigin.location = parentLocation;
+        // originNonReflicaChild.parent = nextOriginNode;
+        // nextOriginNode[originReflicaChildLocation] = sibilingOrigin;
+        // nextOriginNode[originNonReflicaChildLocation] = originNonReflicaChild;
         // nextOriginNode[originReflicaChildLocation].direction =
         //   originReflicaChildDirection;
         // nextOriginNode[originNonReflicaChildLocation].direction =
