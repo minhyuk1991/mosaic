@@ -390,9 +390,9 @@ const deleteFunctions = {
     const sibilingOriginSibilingLocation =
       sibilingOrigin.getSibilingNode().location;
     const parentLocation = node.parent.location;
+    const nodeIsOriginChild = origin.hasChildNode(node.id).has;
     if (originNodeIsRootFirst) {
       console.log("originNodeIsRootFirst");
-      const nodeIsOriginChild = origin.hasChildNode(node.id).has;
 
       console.log("nodeIsOriginChild", nodeIsOriginChild);
       if (nodeIsOriginChild) {
@@ -404,41 +404,49 @@ const deleteFunctions = {
       }
     }
     if (!originNodeIsRootFirst) {
-      const nextOriginNode = new MosaicNode(
-        sibilingOrigin,
-        sibilingOriginLocation,
-        true
-      );
-      //다음 원본 노드 속성변경
+      console.log("!originNodeIsRootFirst");
+      if (nodeIsOriginChild) {
+        originParent[origin.location] = sibiling;
+        sibiling.location = origin.location;
+        sibiling.parent = originParent;
+      }
+      if (!nodeIsOriginChild) {
+        const nextOriginNode = new MosaicNode(
+          sibilingOrigin,
+          sibilingOriginLocation,
+          true
+        );
+        //다음 원본 노드 속성변경
 
-      nextOriginNode.origin = nextOriginNode;
-      nextOriginNode.type = "parent";
-      nextOriginNode.isReplica = false;
-      nextOriginNode.parent = originParent;
-      nextOriginNode.boundingBox = originBoundingBox;
-      nextOriginNode.direction = originDirection;
+        nextOriginNode.origin = nextOriginNode;
+        nextOriginNode.type = "parent";
+        nextOriginNode.isReplica = false;
+        nextOriginNode.parent = originParent;
+        nextOriginNode.boundingBox = originBoundingBox;
+        nextOriginNode.direction = originDirection;
 
-      //원본의 부모에 원본의 위치에 다음 원보노드 할당
-      originParent[originLocation] = nextOriginNode;
-      console.log("originLacaton:", originLocation);
-      console.log(
-        "originLacaton:",
-        originParent[originLocation] === nextOriginNode
-      );
-      //다음 원본노드의 부모를 원본 부모로 할당
+        //원본의 부모에 원본의 위치에 다음 원보노드 할당
+        originParent[originLocation] = nextOriginNode;
+        console.log("originLacaton:", originLocation);
+        console.log(
+          "originLacaton:",
+          originParent[originLocation] === nextOriginNode
+        );
+        //다음 원본노드의 부모를 원본 부모로 할당
 
-      //원본
-      sibilingOrigin.originNodeUpdate(nextOriginNode);
-      sibilingOrigin.isReplica = true;
-      sibilingOrigin.parent = nextOriginNode;
-      sibilingOrigin.location = parentLocation;
-      originNonReflicaChild.parent = nextOriginNode;
-      nextOriginNode[originReflicaChildLocation] = sibilingOrigin;
-      nextOriginNode[originNonReflicaChildLocation] = originNonReflicaChild;
-      // nextOriginNode[originReflicaChildLocation].direction =
-      //   originReflicaChildDirection;
-      // nextOriginNode[originNonReflicaChildLocation].direction =
-      //   originNonReflicaChildDirection;
+        //원본
+        sibilingOrigin.originNodeUpdate(nextOriginNode);
+        sibilingOrigin.isReplica = true;
+        sibilingOrigin.parent = nextOriginNode;
+        sibilingOrigin.location = parentLocation;
+        originNonReflicaChild.parent = nextOriginNode;
+        nextOriginNode[originReflicaChildLocation] = sibilingOrigin;
+        nextOriginNode[originNonReflicaChildLocation] = originNonReflicaChild;
+        // nextOriginNode[originReflicaChildLocation].direction =
+        //   originReflicaChildDirection;
+        // nextOriginNode[originNonReflicaChildLocation].direction =
+        //   originNonReflicaChildDirection;
+      }
     }
     root.resizingOrder();
     root.updateSplitPercentOrder();
