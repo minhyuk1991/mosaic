@@ -372,6 +372,7 @@ export class MosaicNode {
 const deleteFunctions = {
   reflicaCase: (node: MosaicNode) => {
     const origin = node.origin;
+    const originLocaiton = origin.location;
     const originBoundingBox = origin.boundingBox;
     const originDirection = origin.direction;
     const originParent = origin.parent;
@@ -401,6 +402,16 @@ const deleteFunctions = {
         root.first.parent = root;
       }
       if (!nodeIsOriginChild) {
+        originParent[originLocaiton] = sibiling;
+        sibiling.type = "child";
+        sibiling.parent = originParent;
+        sibiling[originReflicaChildLocation] = new MosaicNode(
+          sibiling,
+          originReflicaChildLocation,
+          true
+        );
+        sibiling[originNonReflicaChildLocation] = originNonReflicaChild;
+        originNonReflicaChild.parent = sibiling;
       }
     }
     if (!originNodeIsRootFirst) {
