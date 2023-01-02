@@ -27,11 +27,11 @@ const dnd = {
     console.log(document.querySelectorAll(".item__body"));
     node.origin.type = "child";
     $floatingNode = node.origin;
-    node.delete();
-    update();
     document.addEventListener("mousemove", dnd.mouseMoveHandler);
     document.addEventListener("mouseup", dnd.mouseUpHandler);
     isFolating = true;
+    node.delete();
+    update();
   },
   mouseUpHandler: (e) => {
     console.log("mouseUp");
