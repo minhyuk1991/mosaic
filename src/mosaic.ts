@@ -397,40 +397,138 @@ const deleteFunctions = {
       sibilingOrigin.getSibilingNode().location;
     const parentLocation = node.parent.location;
     const nodeIsOriginChild = origin.hasChildNode(node.id).has;
+    console.log("start root", root);
     if (originNodeIsRootFirst) {
       console.log("originNodeIsRootFirst");
 
       console.log("nodeIsOriginChild", nodeIsOriginChild);
       if (nodeIsOriginChild) {
         console.log("nodeIsOriginChild");
-        root.first = node.getSibilingNode();
-        root.first.parent = root;
+        // root.first = node.getSibilingNode();
+        const sibilingHasChild = sibiling.hasChild();
+        if (sibilingHasChild) {
+          root.first = sibilingOrigin;
+          sibilingOrigin.location = "first";
+          sibilingOrigin.parent = root;
+        }
+        if (!sibilingHasChild) {
+          console.log("!sibilingHasChild");
+          const nextOrigin = new MosaicNode(sibiling, originLocation, true);
+          nextOrigin.parent = originParent;
+          // nextOrigin.type = "parent";
+          nextOrigin.direction = originDirection;
+          console.log("originDirection", originDirection);
+          nextOrigin.isReplica = false;
+          nextOrigin.origin = nextOrigin;
+          nextOrigin.location = originLocation;
+          originParent[originLocation] = nextOrigin;
+        }
+
+        // root.first.parent = root;
       }
       if (!nodeIsOriginChild) {
         console.log("!nodeIsOriginChild");
-        originParent[originLocation] = sibiling;
-        sibiling.type = "child";
-        sibiling.parent = originParent;
-        sibiling.direction = originDirection;
-        sibiling[originReflicaChildLocation] = new MosaicNode(
-          sibiling,
-          originReflicaChildLocation,
-          true
-        );
-        sibiling[originNonReflicaChildLocation] = originNonReflicaChild;
-        originNonReflicaChild.parent = sibiling;
+
+        const sibilingHasChild = sibiling.hasChild();
+        if (sibilingHasChild) {
+          console.log("sibilingHasChild");
+          const nextOrigin = new MosaicNode(sibiling, sibiling.location, true);
+          originParent[originLocation] = nextOrigin;
+          nextOrigin.parent = originParent;
+          nextOrigin.type = "parent";
+          nextOrigin.isReplica = false;
+          nextOrigin.origin = nextOrigin;
+          nextOrigin.location = originLocation;
+          nextOrigin.direction = originDirection;
+
+          sibiling.originNodeUpdateOrder(nextOrigin);
+          sibiling.parent = nextOrigin;
+          sibiling.location = parentLocation;
+          nextOrigin[originReflicaChildLocation] = sibiling;
+          nextOrigin[originNonReflicaChildLocation] = originNonReflicaChild;
+          originNonReflicaChild.parent = nextOrigin;
+        }
+        if (!sibilingHasChild) {
+          console.log("!sibilingHasChild");
+
+          const nextOrigin = new MosaicNode(sibiling, sibiling.location, true);
+          originParent[originLocation] = nextOrigin;
+          nextOrigin.parent = originParent;
+          nextOrigin.type = "parent";
+          nextOrigin.isReplica = false;
+          nextOrigin.origin = nextOrigin;
+          nextOrigin.location = originLocation;
+          nextOrigin.direction = originDirection;
+
+          originNonReflicaChild.parent = nextOrigin;
+          originReflicaChild.parent = nextOrigin;
+          nextOrigin[originReflicaChildLocation] = originReflicaChild;
+          nextOrigin[originNonReflicaChildLocation] = originNonReflicaChild;
+          sibiling.location = parentLocation;
+          parentParent[parentLocation] = sibiling;
+          sibiling.parent = parentParent;
+          node.parent.type = "child";
+          node.parent.first = null;
+          node.parent.second = null;
+        }
+
+        // originParent[originLocation] = sibiling;
+        // sibiling.type = "child";
+        // sibiling.parent = originParent;
+        // sibiling.direction = originDirection;
+        // sibiling[originReflicaChildLocation] = new MosaicNode(
+        //   sibiling,
+        //   originReflicaChildLocation,
+        //   true
+        // );
+        // sibiling[originNonReflicaChildLocation] = originNonReflicaChild;
+        // originNonReflicaChild.parent = sibiling;
       }
     }
     if (!originNodeIsRootFirst) {
       console.log("!originNodeIsRootFirst");
       if (nodeIsOriginChild) {
-        console.log("nodeIsOriginChild");
-        originParent[origin.location] = sibiling;
-        sibiling.location = origin.location;
-        sibiling.parent = originParent;
+        const sibilingHasChild = sibiling.hasChild();
+        if (sibilingHasChild) {
+          console.log("sibilingHasChild");
+          const nextOrigin = new MosaicNode(sibiling, originLocation, true);
+          nextOrigin.isReplica = false;
+          nextOrigin.origin = nextOrigin;
+          nextOrigin.type = "parent";
+          nextOrigin.parent = originParent;
+          nextOrigin.location = originLocation;
+          nextOrigin.direction = originDirection;
+          originParent[originLocation] = nextOrigin;
+          origin.originNodeUpdateOrder(nextOrigin);
+          origin.isReplica = true;
+          originReflicaChild.parent = nextOrigin;
+          originNonReflicaChild.parent = nextOrigin;
+          nextOrigin[originReflicaChildLocation] = originReflicaChild;
+          nextOrigin[originNonReflicaChildLocation] = originNonReflicaChild;
+
+          sibiling.parent = parentParent;
+          sibiling.location = parentLocation;
+          sibiling.originNodeUpdateOrder(nextOrigin);
+          sibiling.type = "parent";
+          sibiling.isReplica = true;
+          parentParent[parentLocation] = sibiling;
+        }
+        if (!sibilingHasChild) {
+          console.log("!sibilingHasChild");
+          const nextOrigin = new MosaicNode(sibiling, originLocation, true);
+          nextOrigin.parent = originParent;
+          // nextOrigin.type = "parent";
+          nextOrigin.direction = originDirection;
+          console.log("originDirection", originDirection);
+          nextOrigin.isReplica = false;
+          nextOrigin.origin = nextOrigin;
+          nextOrigin.location = originLocation;
+          originParent[originLocation] = nextOrigin;
+        }
       }
       if (!nodeIsOriginChild) {
         console.log("!nodeIsOriginChild");
+        console.log("root", root);
         const sibilingHasChild = sibiling.hasChild();
         if (sibilingHasChild) {
           console.log("sibilingHasChild");
@@ -444,6 +542,7 @@ const deleteFunctions = {
               true
             );
             originParent[originLocation] = nextOrigin;
+            origin.isReplica = true;
             nextOrigin.parent = originParent;
             nextOrigin.type = "parent";
             nextOrigin.isReplica = false;
@@ -467,16 +566,14 @@ const deleteFunctions = {
             nextOrigin.type = "parent";
             nextOrigin.parent = originParent;
             nextOrigin.location = originLocation;
+            nextOrigin.direction = originDirection;
             originParent[originLocation] = nextOrigin;
+            origin.isReplica = true;
             origin.originNodeUpdateOrder(nextOrigin);
             originReflicaChild.parent = nextOrigin;
-            originNonReflicaChild.parent = nextOrigin;
+            console.log(originNonReflicaChild);
             nextOrigin[originReflicaChildLocation] = originReflicaChild;
             nextOrigin[originNonReflicaChildLocation] = originNonReflicaChild;
-            console.log(
-              "originNonReflicaChildLocation",
-              originNonReflicaChildLocation
-            );
 
             sibiling.parent = parentParent;
             sibiling.location = parentLocation;
@@ -503,18 +600,18 @@ const deleteFunctions = {
         }
         if (!sibilingHasChild) {
           console.log("!sibilingHasChild");
-          originParent[originLocation] = sibiling;
-          sibiling.parent = originParent;
+          console.log(root);
+          root[originLocation] = sibiling;
           sibiling.type = "parent";
           sibiling.location = originLocation;
-          sibiling.direction = originDirection;
-          originNonReflicaChild.parent = sibiling;
+          sibiling.parent = root;
           sibiling[originNonReflicaChildLocation] = originNonReflicaChild;
           sibiling[originReflicaChildLocation] = new MosaicNode(
             sibiling,
             originReflicaChildLocation,
             true
           );
+          originNonReflicaChild.parent = sibiling;
         }
 
         // const nextOriginNode = new MosaicNode(
@@ -557,7 +654,7 @@ const deleteFunctions = {
     root.resizingOrder();
     root.updateSplitPercentOrder();
     root.getSplitBarRenderList();
-    console.log("root", root.nodeRendertList);
+    console.log("end root", root);
   },
   nomalCase: (node: MosaicNode) => {
     const root = node.root;
