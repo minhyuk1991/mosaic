@@ -5,13 +5,13 @@ import IconSplit from "./icons/IconSplit.svelte";
 
 export let update;
 export let node;
-export let floatNode: (node: MosaicNode) => void;
+export let floatNode: (node: MosaicNode, e: MouseEvent) => void;
 </script>
 
 <div class="item__header flex cursor-move">
   <div
-    on:click="{() => {
-      floatNode(node);
+    on:mousedown="{(e) => {
+      floatNode(node, e);
     }}"
     class="item__header--title__area flex h-[30px] flex-1 items-center pl-[10px] text-[14px] font-semibold leading-[30px]">
     Window

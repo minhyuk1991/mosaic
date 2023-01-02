@@ -45,3 +45,10 @@ html {
 .item__header .item__header--button__area button:hover {
   background: rgba(143, 153, 168, 0.15);
 }
+
+.node__item .item__body .guide__item {
+  opacity: 0;
+}
+.node__item.active .item__body .guide__item:hover {
+  opacity: 20 !important;
+}
