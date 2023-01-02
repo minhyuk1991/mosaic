@@ -25,18 +25,88 @@ let isFolating = false;
 const dnd = {
   mouseDownHandler: (node: MosaicNode, e: MouseEvent) => {
     console.log(document.querySelectorAll(".item__body"));
-    $floatingNode = node;
+    node.origin.type = "child";
+    $floatingNode = node.origin;
     node.delete();
     update();
     document.addEventListener("mousemove", dnd.mouseMoveHandler);
+    document.addEventListener("mouseup", dnd.mouseUpHandler);
     isFolating = true;
   },
-  mouseUpHandler: () => {},
+  mouseUpHandler: (e) => {
+    console.log("mouseUp");
+    document.removeEventListener("mousemove", dnd.mouseMoveHandler);
+
+    isFolating = false;
+
+    let location;
+    let direction;
+    const target = e.target;
+    const nodeItem = findAncestorByClass(target, "node__item");
+    if (target.classList.contains("guide__item")) {
+      if (target.classList.contains("top")) {
+        location = "first";
+        direction = "column";
+      }
+      if (target.classList.contains("right")) {
+        location = "first";
+        direction = "row";
+      }
+      if (target.classList.contains("bottom")) {
+        location = "seconde";
+        direction = "column";
+      }
+      if (target.classList.contains("left")) {
+        location = "seconde";
+        direction = "row";
+      }
+
+      console.log();
+      // findAncestorById(target, id);
+      if (nodeItem && direction && location && nodeItem.getAttribute("id")) {
+        const targetId = nodeItem.getAttribute("id");
+        const insertTargetNode = $nodeItems.get(targetId);
+        console.log("insertTargetNode", insertTargetNode);
+        insertTargetNode.insert(insertTargetNode, location, direction);
+      }
+      $floatingNode = null;
+    }
+    // console.log(e.target);
+    update();
+
+    // $nodeItems.get()
+  },
   mouseMoveHandler: (e: MouseEvent) => {
     floatingMx = e.clientX;
     floatingMy = e.clientY;
   },
 };
+
+function findAncestorByClass(el: HTMLElement, className: string) {
+  let currentElement = el;
+  console.log();
+  while (!currentElement.classList.contains(className)) {
+    currentElement = currentElement.parentElement;
+    if (currentElement.tagName === "HTML") {
+      return null;
+    }
+    // console.log(currentElement);
+  }
+  return currentElement;
+}
+
+function findAncestorById(el: HTMLElement, id: string) {
+  let currentElement = el;
+  console.log();
+  while (currentElement.getAttribute("id") !== id) {
+    currentElement = currentElement.parentElement;
+    if (currentElement.tagName === "HTML") {
+      return null;
+    }
+    // console.log(currentElement);
+  }
+  return currentElement;
+}
 </script>
 
 <main class="h-full w-full bg-[#abb3bf] text-lg text-green-400">

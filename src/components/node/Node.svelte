@@ -18,6 +18,7 @@ $: {
 
 <div
   style="{`inset: ${top}% ${right}% ${bottom}% ${left}%`}"
+  id="{node.origin.id}"
   class="{`node__item ${
     isFolating ? 'active' : ''
   }  absolute m-[3px] flex select-none flex-col bg-[#f6f7f9] text-sm`}">

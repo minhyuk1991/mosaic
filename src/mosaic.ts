@@ -286,16 +286,33 @@ export class MosaicNode {
       }
     }
   }
-  insert(insertNode: MosaicNode, order: "first" | "second") {
-    const { originNode } = findOriginLocation(this.origin.id, this);
-    insertNode.parent = originNode.parent;
-    insertNode.location = order;
-    originNode.parent[order] = insertNode;
-    insertNode.type = "parent";
-    insertNode[order] = new MosaicNode(this, order, true);
-    insertNode[order === "first" ? "second" : "first"] = originNode;
-    originNode.parent = insertNode;
-    originNode.location = order === "first" ? "second" : "first";
+  insert(
+    insertNode: MosaicNode,
+    location: "first" | "second",
+    direction: "row" | "column"
+  ) {
+    const reflicaLocation = location === "first" ? "second" : "first";
+    const insertLocation = location;
+    console.log(
+      `==========insert===========${(insertNode.id, location, direction)}`
+    );
+    this.type = "parent";
+    insertNode.parent = this;
+    insertNode.type = "child";
+    insertNode.location = location;
+    this.direction = direction;
+    console.log(insertNode);
+    this[reflicaLocation] = new MosaicNode(this, reflicaLocation, true);
+    this[insertLocation] = insertNode;
+    insertNode.boundingBox = insertNode.getBoundingBox();
+
+    console.log("insertNode.id", insertNode.id);
+    console.log("insertNode", insertNode);
+    console.log("insertNode.parent", insertNode.parent.id === this.id);
+    this.root.nodeRendertList.clear();
+    this.root.splitBarRenderList.clear();
+    this.root.getNodeRenderList();
+    this.root.getSplitBarRenderList();
   }
   parentLinkClear() {
     this.parent.first = null;
