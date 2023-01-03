@@ -15,7 +15,7 @@ const update = () => {
   console.log("test.root.nodeRendertList", test.root.nodeRendertList);
   test.root.nodeRendertList.clear();
   test.root.splitBarRenderList.clear();
-  test.root.getNodeRenderList();
+  test.root.getRenderList();
   test.root.getSplitBarRenderList();
   $nodeItems = test.root.nodeRendertList;
   $splitBarItems = test.root.splitBarRenderList;
