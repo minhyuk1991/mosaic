@@ -275,29 +275,6 @@ export class MosaicNode {
     }
     return location;
   }
-  //현재노드를 오리진으로 만들고,
-  // changeToBeOrigin(nodeId:string){
-  //   this.origin =
-  //   this.id=
-  // }
-  // originNodeUpdateOrder(nextOriginNode: MosaicNode) {
-
-  //   if (this.id === this.origin.id) {
-  //     this.originNodeUpdateOrder(nextOriginNode);
-  //   } else {
-  //     console.log("this node not origin");
-  //   }
-  // }
-  //오리진 노드가 변한다는 것은 무엇인가?????
-
-  //origin
-  //type
-  //id
-  //splitPercent
-  //location
-  //isReplica
-  //direction
-  //data
 
   originNodeUpdateAndReversePropagation() {
     if (this.parent.id !== this.root.id) {
@@ -464,7 +441,6 @@ const deleteFunctions = {
         sibiling.location = root.first.location;
         root.first = sibiling;
         sibiling.parent = root;
-        sibiling.type = "parent";
       }
       if (originNodeIsRootFirst && !originNodeParentCase) {
         console.log("originNodeIsRootFirst && !originNodeParentCase");

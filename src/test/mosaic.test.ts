@@ -152,18 +152,27 @@ describe("delete test", () => {
     test.first.first.split();
     test.first.first.second.split();
     test.first.first.second.first.split();
-    const first = test.first.first;
     const nextFirstFirst = test.first.first.second;
     test.first.first.first.delete();
     expect(test.first.first.id).toBe(nextFirstFirst.id);
     expect(test.first.parent.id).toBe("master");
+  });
 
-    // const second = test.first.second;
-    // const secondId = second.id;
-    // first.delete();
-    // expect(test.first).toBe(secondId);
-    // expect(test.first.first).toBe(null);
-    // expect(test.first.second).toBe(null);
+  it("delete originNodeIsRootFirst && originNodeParentCase", () => {
+    const test = new MosaicNode().init();
+    test.first.split();
+    const nextFirstId = test.first.second.id;
+    test.first.first.delete();
+    expect(test.first.id).toBe(nextFirstId);
+    expect(test.first.boundingBox).toEqual({
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+    });
+    expect(test.first.parent.id).toBe("master");
+    expect(test.first.first === null).toBe(true);
+    expect(test.first.second === null).toBe(true);
   });
 });
 
