@@ -110,11 +110,6 @@ function findAncestorById(el: HTMLElement, id: string) {
 </script>
 
 <main class="h-full w-full bg-[#abb3bf] text-lg text-green-400">
-  <button
-    class="absolute z-40"
-    on:click="{() => {
-      update();
-    }}">ss</button>
   {#each [...$nodeItems] as item}
     <Node
       node="{item[1]}"

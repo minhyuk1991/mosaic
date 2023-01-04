@@ -454,22 +454,6 @@ const deleteFunctions = {
     const sibilingHasChildCase = node.getSibilingNode().hasChild();
     const sibiling = node.getSibilingNode();
 
-    // const parentParent = node.parent.parent;
-    // const originLocation = origin.location;
-    // const originBoundingBox = origin.boundingBox;
-    // const originDirection = origin.direction;
-    // const originParent = origin.parent;
-    // const originreplicaChildLocation = origin.findreplicaChildLocation();
-    // const originNonreplicaChildLocation = origin.findNonreplicaChildLocation();
-    // const originreplicaChild = origin[originreplicaChildLocation];
-    // const originNonreplicaChild = origin[originNonreplicaChildLocation];
-    // const sibilingOrigin = sibiling.origin;
-    // const sibilingOriginLocation = sibilingOrigin.location;
-    // const sibilingOriginSibilingLocation =
-    //   sibilingOrigin.getSibilingNode().location;
-    // const parentLocation = node.parent.location;
-    // const nodeIsOriginChild = origin.hasChildNodeById(node.id).has;
-
     if (originNodeIsRootFirst) {
       console.log("originNodeIsRootFirst");
       if (originNodeIsRootFirst && originNodeParentCase) {
@@ -549,6 +533,11 @@ const deleteFunctions = {
           console.log(
             "!originNodeIsRootFirst && originNodeParentCase &&sibilingHasChildCase"
           );
+          const nextSibilingLocation = node.parent.location;
+
+          sibiling.location = nextSibilingLocation;
+          sibiling.parent = node.parent.parent;
+          node.parent.parent[nextSibilingLocation] = sibiling;
         }
         if (
           !originNodeIsRootFirst &&
@@ -558,6 +547,9 @@ const deleteFunctions = {
           console.log(
             "!originNodeIsRootFirst &&originNodeParentCase && !sibilingHasChildCase"
           );
+          sibiling.parent = node.parent.parent;
+          const nextSibilingLocation = node.parent.location;
+          node.parent.parent[nextSibilingLocation] = sibiling;
         }
       }
       if (!originNodeIsRootFirst && !originNodeParentCase) {
@@ -573,6 +565,12 @@ const deleteFunctions = {
             nextOriginNode: sibiling,
             dataOverwrite: true,
           });
+          sibiling.originNodeUpdateOrder({ nextOriginNode: origin });
+          sibiling.isReplica = true;
+          const nextSibilingLocation = node.parent.location;
+          sibiling.location = nextSibilingLocation;
+          node.parent.parent[nextSibilingLocation] = sibiling;
+          sibiling.parent = node.parent.parent;
         }
         if (!originNodeIsRootFirst && !sibilingHasChildCase) {
           console.log(
@@ -590,259 +588,6 @@ const deleteFunctions = {
     root.updateSplitPercentOrder();
     root.getSplitBarRenderList();
     console.log("end root", root);
-    // if (originNodeIsRootFirst) {
-    //   console.log("originNodeIsRootFirst");
-
-    //   console.log("nodeIsOriginChild", nodeIsOriginChild);
-    //   if (nodeIsOriginChild) {
-    //     console.log("nodeIsOriginChild");
-    //     // root.first = node.getSibilingNode();
-    //     const sibilingHasChild = sibiling.hasChild();
-    //     if (sibilingHasChild) {
-    //       root.first = sibilingOrigin;
-    //       sibilingOrigin.location = "first";
-    //       sibilingOrigin.parent = root;
-    //     }
-    //     if (!sibilingHasChild) {
-    //       console.log("!sibilingHasChild");
-    //       const nextOrigin = new MosaicNode(sibiling, originLocation, true);
-    //       nextOrigin.parent = originParent;
-    //       // nextOrigin.type = "parent";
-    //       nextOrigin.direction = originDirection;
-    //       console.log("originDirection", originDirection);
-    //       nextOrigin.isReplica = false;
-    //       nextOrigin.origin = nextOrigin;
-    //       nextOrigin.location = originLocation;
-    //       originParent[originLocation] = nextOrigin;
-    //     }
-
-    //     // root.first.parent = root;
-    //   }
-    //   if (!nodeIsOriginChild) {
-    //     console.log("!nodeIsOriginChild");
-
-    //     const sibilingHasChild = sibiling.hasChild();
-    //     if (sibilingHasChild) {
-    //       console.log("sibilingHasChild");
-    //       const nextOrigin = new MosaicNode(sibiling, sibiling.location, true);
-    //       originParent[originLocation] = nextOrigin;
-    //       nextOrigin.parent = originParent;
-    //       nextOrigin.type = "parent";
-    //       nextOrigin.isReplica = false;
-    //       nextOrigin.origin = nextOrigin;
-    //       nextOrigin.location = originLocation;
-    //       nextOrigin.direction = originDirection;
-
-    //       sibiling.originNodeUpdateOrder(nextOrigin);
-    //       sibiling.parent = nextOrigin;
-    //       sibiling.location = parentLocation;
-    //       nextOrigin[originreplicaChildLocation] = sibiling;
-    //       nextOrigin[originNonreplicaChildLocation] = originNonreplicaChild;
-    //       originNonreplicaChild.parent = nextOrigin;
-    //     }
-    //     if (!sibilingHasChild) {
-    //       console.log("!sibilingHasChild");
-
-    //       const nextOrigin = new MosaicNode(sibiling, sibiling.location, true);
-    //       originParent[originLocation] = nextOrigin;
-    //       nextOrigin.parent = originParent;
-    //       nextOrigin.type = "parent";
-    //       nextOrigin.isReplica = false;
-    //       nextOrigin.origin = nextOrigin;
-    //       nextOrigin.location = originLocation;
-    //       nextOrigin.direction = originDirection;
-
-    //       originNonreplicaChild.parent = nextOrigin;
-    //       originreplicaChild.parent = nextOrigin;
-    //       nextOrigin[originreplicaChildLocation] = originreplicaChild;
-    //       nextOrigin[originNonreplicaChildLocation] = originNonreplicaChild;
-    //       sibiling.location = parentLocation;
-    //       parentParent[parentLocation] = sibiling;
-    //       sibiling.parent = parentParent;
-    //       node.parent.type = "child";
-    //       node.parent.first = null;
-    //       node.parent.second = null;
-    //     }
-
-    //     // originParent[originLocation] = sibiling;
-    //     // sibiling.type = "child";
-    //     // sibiling.parent = originParent;
-    //     // sibiling.direction = originDirection;
-    //     // sibiling[originreplicaChildLocation] = new MosaicNode(
-    //     //   sibiling,
-    //     //   originreplicaChildLocation,
-    //     //   true
-    //     // );
-    //     // sibiling[originNonreplicaChildLocation] = originNonreplicaChild;
-    //     // originNonreplicaChild.parent = sibiling;
-    //   }
-    // }
-    // if (!originNodeIsRootFirst) {
-    //   console.log("!originNodeIsRootFirst");
-    //   if (nodeIsOriginChild) {
-    //     const sibilingHasChild = sibiling.hasChild();
-    //     if (sibilingHasChild) {
-    //       console.log("sibilingHasChild");
-    //       const nextOrigin = new MosaicNode(sibiling, originLocation, true);
-    //       nextOrigin.isReplica = false;
-    //       nextOrigin.origin = nextOrigin;
-    //       nextOrigin.type = "parent";
-    //       nextOrigin.parent = originParent;
-    //       nextOrigin.location = originLocation;
-    //       nextOrigin.direction = originDirection;
-    //       originParent[originLocation] = nextOrigin;
-    //       origin.originNodeUpdateOrder(nextOrigin);
-    //       origin.isReplica = true;
-    //       originreplicaChild.parent = nextOrigin;
-    //       originNonreplicaChild.parent = nextOrigin;
-    //       nextOrigin[originreplicaChildLocation] = originreplicaChild;
-    //       nextOrigin[originNonreplicaChildLocation] = originNonreplicaChild;
-
-    //       sibiling.parent = parentParent;
-    //       sibiling.location = parentLocation;
-    //       sibiling.originNodeUpdateOrder(nextOrigin);
-    //       sibiling.type = "parent";
-    //       sibiling.isReplica = true;
-    //       parentParent[parentLocation] = sibiling;
-    //     }
-    //     if (!sibilingHasChild) {
-    //       console.log("!sibilingHasChild");
-    //       const nextOrigin = new MosaicNode(sibiling, originLocation, true);
-    //       nextOrigin.parent = originParent;
-    //       // nextOrigin.type = "parent";
-    //       nextOrigin.direction = originDirection;
-    //       console.log("originDirection", originDirection);
-    //       nextOrigin.isReplica = false;
-    //       nextOrigin.origin = nextOrigin;
-    //       nextOrigin.location = originLocation;
-    //       originParent[originLocation] = nextOrigin;
-    //     }
-    //   }
-    //   if (!nodeIsOriginChild) {
-    //     console.log("!nodeIsOriginChild");
-    //     console.log("root", root);
-    //     const sibilingHasChild = sibiling.hasChild();
-    //     if (sibilingHasChild) {
-    //       console.log("sibilingHasChild");
-    //       const originChildChildIsNodeCase =
-    //         origin.id === node.parent.parent.id;
-    //       if (originChildChildIsNodeCase) {
-    //         console.log("originChildChildIsNodeCase");
-    //         const nextOrigin = new MosaicNode(
-    //           sibiling,
-    //           sibiling.location,
-    //           true
-    //         );
-    //         originParent[originLocation] = nextOrigin;
-    //         origin.isReplica = true;
-    //         nextOrigin.parent = originParent;
-    //         nextOrigin.type = "parent";
-    //         nextOrigin.isReplica = false;
-    //         nextOrigin.origin = nextOrigin;
-    //         nextOrigin.location = originLocation;
-    //         nextOrigin.direction = originDirection;
-
-    //         sibiling.originNodeUpdateOrder(nextOrigin);
-    //         sibiling.parent = nextOrigin;
-    //         sibiling.location = parentLocation;
-    //         nextOrigin[originreplicaChildLocation] = sibiling;
-    //         nextOrigin[originNonreplicaChildLocation] = originNonreplicaChild;
-    //         originNonreplicaChild.parent = nextOrigin;
-    //       }
-    //       if (!originChildChildIsNodeCase) {
-    //         console.log("!originChildChildIsNodeCase");
-
-    //         const nextOrigin = new MosaicNode(sibiling, originLocation, true);
-    //         nextOrigin.isReplica = false;
-    //         nextOrigin.origin = nextOrigin;
-    //         nextOrigin.type = "parent";
-    //         nextOrigin.parent = originParent;
-    //         nextOrigin.location = originLocation;
-    //         nextOrigin.direction = originDirection;
-    //         originParent[originLocation] = nextOrigin;
-    //         origin.isReplica = true;
-    //         origin.originNodeUpdateOrder(nextOrigin);
-    //         originreplicaChild.parent = nextOrigin;
-    //         console.log(originNonreplicaChild);
-    //         nextOrigin[originreplicaChildLocation] = originreplicaChild;
-    //         nextOrigin[originNonreplicaChildLocation] = originNonreplicaChild;
-
-    //         sibiling.parent = parentParent;
-    //         sibiling.location = parentLocation;
-    //         sibiling.originNodeUpdateOrder(nextOrigin);
-    //         sibiling.type = "parent";
-    //         sibiling.isReplica = true;
-    //         parentParent[parentLocation] = sibiling;
-    //       }
-
-    //       // const tempSibilingData = sibiling.data;
-
-    //       // origin.originNodeUpdateOrder(sibiling);
-    //       // // origin.data = origin.origin.data;
-    //       // // origin.origin = origin;
-
-    //       // // originParent[originLocaiton].originNodeUpdate(sibiling);
-    //       // // sibiling.originNodeUpdateOrder(origin);
-    //       // // sibiling.isReplica = true;
-    //       // parentParent[parentLocation] = sibiling;
-    //       // // sibiling.parent = parentParent;
-    //       // sibiling.location = parentParent.location;
-    //       // sibiling.data = tempSibilingData;
-    //       // originParent[originLocaiton].originNodeUpdate(sibiling);
-    //     }
-    //     if (!sibilingHasChild) {
-    //       console.log("!sibilingHasChild");
-    //       console.log(root);
-    //       root[originLocation] = sibiling;
-    //       sibiling.type = "parent";
-    //       sibiling.location = originLocation;
-    //       sibiling.parent = root;
-    //       sibiling[originNonreplicaChildLocation] = originNonreplicaChild;
-    //       sibiling[originreplicaChildLocation] = new MosaicNode(
-    //         sibiling,
-    //         originreplicaChildLocation,
-    //         true
-    //       );
-    //       originNonreplicaChild.parent = sibiling;
-    //     }
-
-    //     // const nextOriginNode = new MosaicNode(
-    //     //   sibilingOrigin,
-    //     //   sibilingOriginLocation,
-    //     //   true
-    //     // );
-    //     // //다음 원본 노드 속성변경
-
-    //     // nextOriginNode.origin = nextOriginNode;
-    //     // nextOriginNode.type = "parent";
-    //     // nextOriginNode.isReplica = false;
-    //     // nextOriginNode.parent = originParent;
-    //     // nextOriginNode.boundingBox = originBoundingBox;
-    //     // nextOriginNode.direction = originDirection;
-
-    //     // //원본의 부모에 원본의 위치에 다음 원보노드 할당
-    //     // originParent[originLocation] = nextOriginNode;
-    //     // console.log("originLacaton:", originLocation);
-    //     // console.log(
-    //     //   "originLacaton:",
-    //     //   originParent[originLocation] === nextOriginNode
-    //     // );
-    //     // //다음 원본노드의 부모를 원본 부모로 할당
-
-    //     // //원본
-    //     // sibilingOrigin.originNodeUpdate(nextOriginNode);
-    //     // sibilingOrigin.isReplica = true;
-    //     // sibilingOrigin.parent = nextOriginNode;
-    //     // sibilingOrigin.location = parentLocation;
-    //     // originNonreplicaChild.parent = nextOriginNode;
-    //     // nextOriginNode[originreplicaChildLocation] = sibilingOrigin;
-    //     // nextOriginNode[originNonreplicaChildLocation] = originNonreplicaChild;
-    //     // nextOriginNode[originreplicaChildLocation].direction =
-    //     //   originreplicaChildDirection;
-    //     // nextOriginNode[originNonreplicaChildLocation].direction =
-    //     //   originNonreplicaChildDirection;
-    //   }
-    // }
   },
   nomalCase: (node: MosaicNode) => {
     const root = node.root;
