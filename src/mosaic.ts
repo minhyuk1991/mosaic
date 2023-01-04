@@ -506,15 +506,21 @@ const deleteFunctions = {
           originNodeParentCase &&
           sibilingHasChildCase
         ) {
+          //완
           console.log(
             "!originNodeIsRootFirst && originNodeParentCase &&sibilingHasChildCase"
           );
           const nextSibilingLocation = node.parent.location;
-
-          sibiling.location = nextSibilingLocation;
+          origin.originNodeUpdateOrder({
+            nextOriginNode: sibiling,
+            dataOverwrite: true,
+          });
+          sibiling.originNodeUpdateOrder({ nextOriginNode: origin });
+          sibiling.isReplica = true;
+          sibiling.parent.parent[nextSibilingLocation] = sibiling;
           sibiling.parent = node.parent.parent;
-          node.parent.parent[nextSibilingLocation] = sibiling;
         }
+        //중
         if (
           !originNodeIsRootFirst &&
           originNodeParentCase &&
@@ -523,8 +529,8 @@ const deleteFunctions = {
           console.log(
             "!originNodeIsRootFirst &&originNodeParentCase && !sibilingHasChildCase"
           );
-          sibiling.parent = node.parent.parent;
           const nextSibilingLocation = node.parent.location;
+          sibiling.parent = node.parent.parent;
           node.parent.parent[nextSibilingLocation] = sibiling;
         }
       }

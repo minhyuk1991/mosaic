@@ -174,13 +174,67 @@ describe("delete test", () => {
     expect(test.first.first === null).toBe(true);
     expect(test.first.second === null).toBe(true);
   });
-});
-
-describe("mosaic deleteFirstAndSecond", () => {
-  it("", () => {
+  it("originNodeIsRootFirst && originNodeParentCase && !sibilingHasChildCase", () => {
     const test = new MosaicNode().init();
     test.first.split();
-    test.first.deleteFirstAndSecond();
+    const secondId = test.first.second.id;
+    test.first.first.delete();
     expect(test.first.hasChild()).toBe(false);
+    expect(test.first.parent.id === "master").toBe(true);
+    expect(test.first.id === secondId).toBe(true);
+    expect(test.boundingBox).toEqual({
+      top: 0,
+      right: 0,
+      bottom: 0,
+      left: 0,
+    });
+  });
+  it("originNodeIsRootFirst && !originNodeParentCase && sibilingHasChildCase", () => {
+    const test = new MosaicNode().init();
+    test.first.split();
+    test.first.second.split();
+    test.first.second.first.split();
+    test.first.second.first.first.split();
+    const secondId = test.first.second.id;
+    test.first.first.delete();
+    expect(test.first.hasChild()).toBe(true);
+    expect(test.first.first.hasChild()).toBe(true);
+    expect(test.first.parent.id === "master").toBe(true);
+    expect(test.first.id === secondId).toBe(true);
+  });
+
+  it("!originNodeIsRootFirst && originNodeParentCase &&sibilingHasChildCase", () => {
+    const test = new MosaicNode().init();
+    test.first.split();
+    test.first.first.split();
+    test.first.first.second.split();
+    test.first.first.second.first.split();
+    test.first.first.second.first.second.split();
+    const parentNode = test.first.first.second.first;
+    const parentParent = test.first.first.second;
+    const originNode = test.first.first.second;
+    const sibilingLocation = test.first.first.second.first.location;
+    const sibiling = test.first.first.second.first.second;
+    test.first.first.second.first.first.delete();
+
+    expect(test.first.first.second.first.first.hasChild()).toBe(false);
+    expect(parentParent[parentNode.location].id === sibiling.id).toBe(true);
+    expect(sibiling.parent.id === parentParent.id).toBe(true);
+    expect(sibiling.hasChild()).toBe(true);
+    expect(sibiling.location === sibilingLocation).toBe(true);
+    expect(originNode.id === sibiling.origin.id).toBe(true);
+  });
+
+  it("!originNodeIsRootFirst &&originNodeParentCase && !sibilingHasChildCase", () => {
+    const test = new MosaicNode().init();
+
+    test.first.first.second.first.first.delete();
+
+    // expect(test.first.first.second.first.first.hasChild()).toBe(false);
+    // expect(parentParent[parentNode.location].id === sibiling.id).toBe(true);
+    // expect(sibiling.parent.id === parentParent.id).toBe(true);
+    // expect(sibiling.hasChild()).toBe(true);
+    // expect(sibiling.location === sibilingLocation).toBe(true);
+    // expect(originNode.id === sibiling.origin.id).toBe(true);
   });
 });
