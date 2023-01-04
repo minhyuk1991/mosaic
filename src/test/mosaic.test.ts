@@ -227,14 +227,21 @@ describe("delete test", () => {
 
   it("!originNodeIsRootFirst &&originNodeParentCase && !sibilingHasChildCase", () => {
     const test = new MosaicNode().init();
+    test.first.split();
+    test.first.first.split();
+    test.first.first.second.split();
+    const parentLocation = test.first.first.second.location;
+    const parentParent = test.first.first.second;
+    const sibiling = test.first.first.second.second;
+    test.first.first.second.first.delete();
 
-    test.first.first.second.first.first.delete();
-
-    // expect(test.first.first.second.first.first.hasChild()).toBe(false);
-    // expect(parentParent[parentNode.location].id === sibiling.id).toBe(true);
-    // expect(sibiling.parent.id === parentParent.id).toBe(true);
-    // expect(sibiling.hasChild()).toBe(true);
-    // expect(sibiling.location === sibilingLocation).toBe(true);
-    // expect(originNode.id === sibiling.origin.id).toBe(true);
+    expect(sibiling.hasChild()).toBe(false);
+    expect(sibiling.parent.id === parentParent[parentLocation].id).toBe(false);
+    expect(sibiling.location === parentLocation).toBe(true);
+    expect(sibiling.isReplica).toBe(false);
+    expect(sibiling.origin.id === sibiling.id).toBe(true);
+    expect(sibiling.parent.parent.parent.id === "master").toBe(true);
+    expect(parentParent.second).toBeTruthy();
+    expect(parentParent.first).toBeTruthy();
   });
 });

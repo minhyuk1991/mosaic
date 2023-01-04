@@ -520,7 +520,7 @@ const deleteFunctions = {
           sibiling.parent.parent[nextSibilingLocation] = sibiling;
           sibiling.parent = node.parent.parent;
         }
-        //중
+        //완
         if (
           !originNodeIsRootFirst &&
           originNodeParentCase &&
@@ -534,7 +534,9 @@ const deleteFunctions = {
           node.parent.parent[nextSibilingLocation] = sibiling;
         }
       }
+      //중
       if (!originNodeIsRootFirst && !originNodeParentCase) {
+        //중
         if (!originNodeIsRootFirst && sibilingHasChildCase) {
           console.log(
             "!originNodeParentCase&&!originNodeIsRootFirst && sibilingHasChildCase"
