@@ -247,20 +247,17 @@ describe("delete test", () => {
 
   it("!originNodeParentCase&&!originNodeIsRootFirst && sibilingHasChildCase", () => {
     const test = new MosaicNode().init();
-
-    //퍼퍼세퍼퍼세
     test.first.split();
     test.first.first.split();
     test.first.first.second.split();
     test.first.first.second.first.split();
     test.first.first.second.first.first.split();
     test.first.first.second.first.first.second.split();
-
     const origin = test.first.first.second;
+    const parent = test.first.first.second.first.first;
     const sibiling = test.first.first.second.first.first.second;
     const originLocation = origin.location;
     test.first.first.second.first.first.first.delete();
-
     expect(test.first.first.second.first.first.hasChild()).toBe(true);
     expect(test.first.first.second.first.first.first.hasChild()).toBe(false);
     expect(test.first.first.second.first.first.second.hasChild()).toBe(false);
@@ -273,5 +270,29 @@ describe("delete test", () => {
     );
     expect(sibiling.isReplica).toBe(true);
     expect(sibiling.origin.id === origin.id).toBe(true);
+    expect(parent.id === parent.parent[parent.location].id).toBe(false);
+  });
+  it("!originNodeParentCase&&!originNodeIsRootFirst && !sibilingHasChildCase", () => {
+    const test = new MosaicNode().init();
+    test.first.split();
+    test.first.first.split();
+    test.first.first.second.split();
+    test.first.first.second.first.split();
+    test.first.first.second.first.first.split();
+    const origin = test.first.first.second;
+    const parent = test.first.first.second.first.first;
+    const sibiling = test.first.first.second.first.first.second;
+    const originLocation = origin.location;
+    test.first.first.second.first.first.first.delete();
+    expect(test.first.first.second.first.first.hasChild()).toBe(false);
+    expect(
+      test.first.first.second.first.first.parent.id ===
+        test.first.first.second.first[originLocation].id
+    ).toBe(false);
+    expect(test.first.first.second.first.first.origin.id === origin.id).toBe(
+      true
+    );
+    expect(sibiling.parent.origin.id === origin.id).toBe(true);
+    expect(parent.hasChild()).toBe(false);
   });
 });
