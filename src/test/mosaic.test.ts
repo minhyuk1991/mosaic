@@ -139,8 +139,9 @@ describe("delete test", () => {
     const first = test.first.first;
     const second = test.first.second;
     const secondId = second.id;
+
     first.delete();
-    expect(test.first).toBe(secondId);
+    expect(test.first.id).toEqual(secondId);
     expect(test.first.first).toBe(null);
     expect(test.first.second).toBe(null);
   });
@@ -149,18 +150,28 @@ describe("delete test", () => {
     const test = new MosaicNode().init();
     test.first.split();
     test.first.first.split();
-    test.first.first.split();
     test.first.first.second.split();
     test.first.first.second.first.split();
     const first = test.first.first;
     const nextFirstFirst = test.first.first.second;
-    const target = test.first.first.first.delete();
-    expect(test.first.first.id).toEqual(nextFirstFirst.id);
+    test.first.first.first.delete();
+    expect(test.first.first.id).toBe(nextFirstFirst.id);
+    expect(test.first.parent.id).toBe("master");
+
     // const second = test.first.second;
     // const secondId = second.id;
     // first.delete();
     // expect(test.first).toBe(secondId);
     // expect(test.first.first).toBe(null);
     // expect(test.first.second).toBe(null);
+  });
+});
+
+describe("mosaic deleteFirstAndSecond", () => {
+  it("", () => {
+    const test = new MosaicNode().init();
+    test.first.split();
+    test.first.deleteFirstAndSecond();
+    expect(test.first.hasChild()).toBe(false);
   });
 });

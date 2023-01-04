@@ -306,7 +306,7 @@ export class MosaicNode {
     }
   }
   deleteFirstAndSecond() {
-    if (!this.hasChild()) {
+    if (this.hasChild()) {
       this.first = null;
       this.second = null;
       this.type = "child";
@@ -359,18 +359,23 @@ export class MosaicNode {
   }) {
     console.log(" originNodeUpdateOrder 실행");
     const beforeOriginId = this.origin.id;
-    this.origin = nextOriginNode;
+    let node;
     if (dataOverwrite) {
       this.data = nextOriginNode.data;
+      node = this;
+    }
+    if (!dataOverwrite) {
+      this.origin = nextOriginNode;
+      node = nextOriginNode;
     }
     if (this.hasChild()) {
       if (this.first.origin.id === beforeOriginId) {
         console.log("첫번째 자식 오리진 체인지 실행");
-        this.first.originNodeUpdateOrder({ nextOriginNode });
+        this.first.originNodeUpdateOrder({ nextOriginNode: node });
       }
       if (this.second.origin.id === beforeOriginId) {
         console.log("두번째 자식 오리진 체인지 실행");
-        this.second.originNodeUpdateOrder({ nextOriginNode });
+        this.second.originNodeUpdateOrder({ nextOriginNode: node });
       }
     }
   }
@@ -477,43 +482,87 @@ const deleteFunctions = {
         sibiling.parent = root;
       }
       if (originNodeIsRootFirst && !originNodeParentCase) {
+        console.log("originNodeIsRootFirst && !originNodeParentCase");
         //origin노드가 rootFirst의 자식
         //targetNode의 부모 노드가 origin이 아님.
-        const NextSibilingLocation = origin[origin.location].location;
-        origin.originNodeUpdateOrder({
-          nextOriginNode: sibiling,
-          dataOverwrite: true,
-        });
-
-        sibiling.parent = origin;
-        sibiling.location = NextSibilingLocation;
-        origin[origin.location] = sibiling;
         if (
           originNodeIsRootFirst &&
           !originNodeParentCase &&
           sibilingHasChildCase
         ) {
+          //원본 노드가 루트노드의 자식임
+          //원본 노드가 딜리트 누른 노드의 부모가 아님
+          //딜리트 누른 노드의 형제 노드가 자식 있음
+          console.log(
+            " originNodeIsRootFirst && !originNodeParentCase &&sibilingHasChildCase"
+          );
+
+          origin.originNodeUpdateOrder({
+            nextOriginNode: sibiling,
+            dataOverwrite: true,
+          });
+
+          sibiling.originNodeUpdateOrder({
+            nextOriginNode: root.first,
+          });
+
+          const nextSibilingLocation = sibiling.parent.location;
+          sibiling.parent.parent[nextSibilingLocation] = sibiling;
+          sibiling.parent = sibiling.parent.parent;
+          sibiling.isReplica = true;
+          sibiling.location = nextSibilingLocation;
+          console.log(root);
         }
         if (
           originNodeIsRootFirst &&
           !originNodeParentCase &&
           !sibilingHasChildCase
         ) {
+          //원본 노드가 루트노드의 자식임
+          //원본 노드가 딜리트 누른 노드의 부모가 아님
+          //딜리트 누른 노드의 형제 노드가 자식 없음
+          console.log(
+            `originNodeIsRootFirst &&!originNodeParentCase && !sibilingHasChildCase`
+          );
+
+          origin.originNodeUpdateOrder({
+            nextOriginNode: sibiling,
+            dataOverwrite: true,
+          });
+          origin.origin = origin;
+
+          node.parent.deleteFirstAndSecond();
+          console.log("root", node.parent);
         }
       }
     }
     if (!originNodeIsRootFirst) {
+      console.log();
       const originNodeParentCase = node.parent === origin;
-      if (originNodeParentCase) {
-        if (sibilingHasChildCase) {
+      if (!originNodeIsRootFirst && originNodeParentCase) {
+        if (
+          !originNodeIsRootFirst &&
+          originNodeParentCase &&
+          sibilingHasChildCase
+        ) {
+          console.log(
+            "!originNodeIsRootFirst && originNodeParentCase &&sibilingHasChildCase"
+          );
         }
-        if (!sibilingHasChildCase) {
+        if (
+          !originNodeIsRootFirst &&
+          originNodeParentCase &&
+          !sibilingHasChildCase
+        ) {
+          console.log(
+            "!originNodeIsRootFirst &&originNodeParentCase && !sibilingHasChildCase"
+          );
         }
       }
       if (!originNodeParentCase) {
-        if (sibilingHasChildCase) {
+        if (!originNodeIsRootFirst && sibilingHasChildCase) {
         }
-        if (!sibilingHasChildCase) {
+        if (!originNodeIsRootFirst && !sibilingHasChildCase) {
         }
       }
     }
