@@ -480,6 +480,7 @@ const deleteFunctions = {
         sibiling.location = root.first.location;
         root.first = sibiling;
         sibiling.parent = root;
+        sibiling.type = "parent";
       }
       if (originNodeIsRootFirst && !originNodeParentCase) {
         console.log("originNodeIsRootFirst && !originNodeParentCase");
@@ -559,10 +560,29 @@ const deleteFunctions = {
           );
         }
       }
-      if (!originNodeParentCase) {
+      if (!originNodeIsRootFirst && !originNodeParentCase) {
         if (!originNodeIsRootFirst && sibilingHasChildCase) {
+          console.log(
+            "!originNodeParentCase&&!originNodeIsRootFirst && sibilingHasChildCase"
+          );
+          //원본 노드가 루트의 자식이 아님
+          //원본 노드가 루트노드의 자식 아님
+          //원본 노드가 딜리트 누른 노드의 부모가 아님
+          //딜리트 누른 노드의 형제 노드가 자식 있음
+          origin.originNodeUpdateOrder({
+            nextOriginNode: sibiling,
+            dataOverwrite: true,
+          });
         }
         if (!originNodeIsRootFirst && !sibilingHasChildCase) {
+          console.log(
+            "!originNodeParentCase&&!originNodeIsRootFirst && !sibilingHasChildCase"
+          );
+          origin.originNodeUpdateOrder({
+            nextOriginNode: sibiling,
+            dataOverwrite: true,
+          });
+          node.parent.deleteFirstAndSecond();
         }
       }
     }
