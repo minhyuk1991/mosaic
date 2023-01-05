@@ -132,12 +132,13 @@ export class MosaicNode {
     if (!this.parent || !isNoChild) return;
     //childNode 없다면
     if (isNoChild) {
+      console.log("isNoChild");
       //새로운 노드 생성, first는 항상 replica
       this.first = new MosaicNode(this, "first", true);
       console.log(this.first.boundingBox);
       this.second = new MosaicNode(this, "second");
       this.type = "parent";
-      this.root.splitBarRenderList.set(this.origin.id, this);
+      this.root.splitBarRenderList.set(this.id, this);
       this.root.getSplitBarRenderList();
       console.log("====split 완료===", this);
     }
@@ -153,30 +154,61 @@ export class MosaicNode {
   insert(
     insertNode: MosaicNode,
     location: "first" | "second",
-    direction: "row" | "column"
+    direction: "row" | "column",
+    insertTopLevel: boolean = false
   ) {
-    const replicaLocation = location === "first" ? "second" : "first";
-    const insertLocation = location;
     console.log(
-      `==========insert===========${(insertNode.id, location, direction)}`
+      "insert!!",
+      `node:${insertNode}, direction:${direction}, location:${location}`
     );
-    this.type = "parent";
-    insertNode.parent = this;
-    insertNode.type = "child";
-    insertNode.location = location;
-    this.direction = direction;
-    console.log(insertNode);
-    this[replicaLocation] = new MosaicNode(this, replicaLocation, true);
-    this[insertLocation] = insertNode;
-    insertNode.boundingBox = insertNode.getBoundingBox();
-
-    console.log("insertNode.id", insertNode.id);
-    console.log("insertNode", insertNode);
-    console.log("insertNode.parent", insertNode.parent.id === this.id);
-    this.root.nodeRendertList.clear();
-    this.root.splitBarRenderList.clear();
-    this.root.getRenderList();
-    this.root.getSplitBarRenderList();
+    if (insertTopLevel) {
+      if (location === "first") {
+        const prevFirst = this.root.first;
+        const nextFirst = new MosaicNode(this.root, "first", false);
+        nextFirst.direction = direction;
+        nextFirst.first = new MosaicNode(nextFirst, "first", true);
+        nextFirst.second = prevFirst;
+        prevFirst.parent = nextFirst;
+        this.root.first = nextFirst;
+        nextFirst.parent = this.root;
+      }
+      if (location === "second") {
+      }
+    }
+    if (!insertTopLevel) {
+      if (location === "first") {
+        console.log("=====================location first", location, direction);
+        this.type = "parent";
+        this.first = new MosaicNode(this, "first", true);
+        this.second = insertNode;
+        insertNode.parent = this;
+        insertNode.type = "child";
+        console.log("검사 첫째", this, this.type);
+        this.boundingBox = this.getBoundingBox();
+        this.first.boundingBox = this.first.getBoundingBox();
+        this.second.boundingBox = this.second.getBoundingBox();
+        console.log("end root", this.root);
+      }
+      if (location === "second") {
+        console.log(
+          "=======================location second",
+          location,
+          direction
+        );
+        this.type = "parent";
+        this.first = insertNode;
+        this.second = new MosaicNode(this, "second", true);
+        insertNode.parent = this;
+        insertNode.type = "child";
+        console.log("검사 둘째", this);
+        this.boundingBox = this.getBoundingBox();
+        this.first.boundingBox = this.first.getBoundingBox();
+        this.second.boundingBox = this.second.getBoundingBox();
+        console.log("end root", this.root);
+      }
+    }
+    // this.root.updateSplitPercentOrder();
+    // this.root.getSplitBarRenderList();
   }
   getBoundingBox() {
     const rootAndRootFristNode =
@@ -370,7 +402,7 @@ export class MosaicNode {
   splitBarListCheckOrder() {
     const renderTarget = !this.isSameNode(this.root) && this.type === "parent";
     if (renderTarget) {
-      this.root.splitBarRenderList.set(this.origin.id, this);
+      this.root.splitBarRenderList.set(this.id, this);
     }
     if (this.hasChild) {
       if (this.first) {
@@ -409,11 +441,14 @@ export class MosaicNode {
     }
     if (this.hasChild) {
       if (this.first) {
+        console.log("this.id:", this.first.id);
+        console.log("this.first.id:", this.first.id);
         // console.log("다음 실행 예정 노드 ", this.first.id);
         this.first.renderListCheckOrder();
       }
       if (this.second) {
         // console.log("다음 실행 예정 노드 ", this.second.id);
+        console.log("this.second.id:", this.second.id);
         this.second.renderListCheckOrder();
       }
     }
@@ -647,10 +682,18 @@ const deleteFunctions = {
     const sibilingLocaiton = sibiling.location;
     const sibilingHasChild = sibiling.hasChild();
     if (node.isRootFirstNode && !node.hasChild) {
+      root.resizingOrder();
+      root.updateSplitPercentOrder();
+      root.getSplitBarRenderList();
       return;
     }
     console.log("nomal case");
-    if (node.parent.id === "master") return;
+    if (node.parent.id === "master") {
+      root.resizingOrder();
+      root.updateSplitPercentOrder();
+      root.getSplitBarRenderList();
+      return;
+    }
     if (!node.isReplica) {
       if (sibilingHasChild) {
         console.log("sibilingHasChild");

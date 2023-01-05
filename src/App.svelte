@@ -31,14 +31,11 @@ const dnd = {
     document.addEventListener("mouseup", dnd.mouseUpHandler);
     isFolating = true;
     node.delete();
-    update();
   },
   mouseUpHandler: (e) => {
     console.log("mouseUp");
     document.removeEventListener("mousemove", dnd.mouseMoveHandler);
-
-    isFolating = false;
-
+    document.removeEventListener("mouseup", dnd.mouseUpHandler);
     let location;
     let direction;
     const target = e.target;
@@ -49,7 +46,7 @@ const dnd = {
         direction = "column";
       }
       if (target.classList.contains("right")) {
-        location = "first";
+        location = "seconde";
         direction = "row";
       }
       if (target.classList.contains("bottom")) {
@@ -57,7 +54,7 @@ const dnd = {
         direction = "column";
       }
       if (target.classList.contains("left")) {
-        location = "seconde";
+        location = "first";
         direction = "row";
       }
 
@@ -67,9 +64,11 @@ const dnd = {
         const targetId = nodeItem.getAttribute("id");
         const insertTargetNode = $nodeItems.get(targetId);
         console.log("insertTargetNode", insertTargetNode);
+        console.log("insertNode", $floatingNode);
         insertTargetNode.insert(insertTargetNode, location, direction);
       }
       $floatingNode = null;
+      isFolating = false;
     }
     // console.log(e.target);
     update();
