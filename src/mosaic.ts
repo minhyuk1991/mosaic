@@ -329,19 +329,20 @@ export class MosaicNode {
 
   originNodeUpdateOrder({
     nextOriginNode,
-    dataOverwrite = false,
+    onlyDataOverwrite = false,
   }: {
     nextOriginNode: MosaicNode;
-    dataOverwrite?: boolean;
+    onlyDataOverwrite?: boolean;
+    // option: 'dataOnly'|"all"
   }) {
     console.log(" originNodeUpdateOrder 실행");
     const beforeOriginId = this.origin.id;
     let node;
-    if (dataOverwrite) {
+    if (onlyDataOverwrite) {
       this.data = nextOriginNode.data;
       node = this;
     }
-    if (!dataOverwrite) {
+    if (!onlyDataOverwrite) {
       this.origin = nextOriginNode;
       node = nextOriginNode;
     }
@@ -426,22 +427,53 @@ const deleteFunctions = {
     //origin노드가 node의 직계 부모
     const originNodeIsRootFirst = origin.id === root.first.id;
     //origin노드가 node의 직계 부모
-    const originNodeParentCase = node.parent === origin;
+    const originNodeParentCase = node.parent.id === origin.id;
     //sibiling노드가 자식을 가지고 있음
     const sibilingHasChildCase = node.getSibilingNode().hasChild();
     const sibiling = node.getSibilingNode();
 
     if (originNodeIsRootFirst) {
       console.log("originNodeIsRootFirst");
+      //중
       if (originNodeIsRootFirst && originNodeParentCase) {
         //origin노드가 rootFirst의 자식
         //targetNode의 부모 노드가 origin인 케이스
-        console.log("originNodeParentCase");
-        sibiling.boundingBox = root.first.boundingBox;
-        sibiling.location = root.first.location;
-        root.first = sibiling;
-        sibiling.parent = root;
+        //완
+        if (
+          sibilingHasChildCase &&
+          originNodeIsRootFirst &&
+          originNodeParentCase
+        ) {
+          console.log(
+            "sibilingHasChildCase &&originNodeIsRootFirst && originNodeParentCase"
+          );
+
+          sibiling.parent = root;
+          sibiling.location = "first";
+          root.first = sibiling;
+        }
+        //완
+        if (
+          !sibilingHasChildCase &&
+          originNodeIsRootFirst &&
+          originNodeParentCase
+        ) {
+          console.log(
+            "!sibilingHasChildCase && originNodeIsRootFirst && originNodeParentCase"
+          );
+
+          sibiling.parent = root;
+          sibiling.location = "first";
+          root.first = sibiling;
+        }
+        // console.log("originNodeParentCase");
+        // sibiling.boundingBox = root.first.boundingBox;
+        // sibiling.location = root.first.location;
+        // root.first = sibiling;
+        // sibiling.parent = root;
       }
+
+      //완
       if (originNodeIsRootFirst && !originNodeParentCase) {
         console.log("originNodeIsRootFirst && !originNodeParentCase");
         //origin노드가 rootFirst의 자식
@@ -455,21 +487,23 @@ const deleteFunctions = {
           //원본 노드가 딜리트 누른 노드의 부모가 아님
           //딜리트 누른 노드의 형제 노드가 자식 있음
           console.log(
-            " originNodeIsRootFirst && !originNodeParentCase &&sibilingHasChildCase"
+            "originNodeIsRootFirst && !originNodeParentCase &&sibilingHasChildCase"
           );
+          const nextSibilingLocation = sibiling.parent.location;
 
+          const parentParent = node.parent.parent;
+          //오리진은 유지한채로 데이터만 바꿈.
           origin.originNodeUpdateOrder({
             nextOriginNode: sibiling,
-            dataOverwrite: true,
+            onlyDataOverwrite: true,
           });
 
           sibiling.originNodeUpdateOrder({
-            nextOriginNode: root.first,
+            nextOriginNode: origin,
           });
 
-          const nextSibilingLocation = sibiling.parent.location;
-          sibiling.parent.parent[nextSibilingLocation] = sibiling;
-          sibiling.parent = sibiling.parent.parent;
+          parentParent[nextSibilingLocation] = sibiling;
+          sibiling.parent = parentParent;
           sibiling.isReplica = true;
           sibiling.location = nextSibilingLocation;
           console.log(root);
@@ -486,17 +520,29 @@ const deleteFunctions = {
             `originNodeIsRootFirst &&!originNodeParentCase && !sibilingHasChildCase`
           );
 
+          console.log(root);
+          console.log(
+            `바뀌기 전 데이터 ${origin.data} // 바뀔 데이터 ${sibiling.data}`
+          );
+          const nextSibilingLocation = sibiling.parent.location;
+
+          const parentParent = node.parent.parent;
           origin.originNodeUpdateOrder({
             nextOriginNode: sibiling,
-            dataOverwrite: true,
+            onlyDataOverwrite: true,
           });
-          origin.origin = origin;
-
-          node.parent.deleteFirstAndSecond();
-          console.log("root", node.parent);
+          sibiling.originNodeUpdateOrder({
+            nextOriginNode: origin,
+          });
+          parentParent[nextSibilingLocation] = sibiling;
+          sibiling.parent = parentParent;
+          sibiling.isReplica = true;
+          sibiling.location = nextSibilingLocation;
+          console.log(root);
         }
       }
     }
+    //중
     if (!originNodeIsRootFirst) {
       console.log();
       const originNodeParentCase = node.parent === origin;
@@ -511,13 +557,24 @@ const deleteFunctions = {
             "!originNodeIsRootFirst && originNodeParentCase &&sibilingHasChildCase"
           );
           const nextSibilingLocation = node.parent.location;
+          const sibilingNonReplicaChildLocation =
+            sibiling.findNonreplicaChildLocation();
+          const sibilingNonReplicaChild = sibiling.findNonReplicaChild();
           origin.originNodeUpdateOrder({
             nextOriginNode: sibiling,
-            dataOverwrite: true,
+            onlyDataOverwrite: true,
+          });
+          origin.originNodeUpdateOrder({
+            nextOriginNode: origin,
+            onlyDataOverwrite: true,
           });
           sibiling.originNodeUpdateOrder({ nextOriginNode: origin });
           sibiling.isReplica = true;
+          sibilingNonReplicaChild.parent = origin;
+          origin[sibilingNonReplicaChildLocation] = sibilingNonReplicaChild;
           sibiling.parent.parent[nextSibilingLocation] = sibiling;
+          sibiling.parent.parent[sibilingNonReplicaChildLocation] =
+            sibilingNonReplicaChild;
           sibiling.parent = node.parent.parent;
         }
         //완
@@ -547,7 +604,7 @@ const deleteFunctions = {
           //딜리트 누른 노드의 형제 노드가 자식 있음
           origin.originNodeUpdateOrder({
             nextOriginNode: sibiling,
-            dataOverwrite: true,
+            onlyDataOverwrite: true,
           });
           sibiling.originNodeUpdateOrder({ nextOriginNode: origin });
           sibiling.isReplica = true;
@@ -563,7 +620,7 @@ const deleteFunctions = {
           );
           origin.originNodeUpdateOrder({
             nextOriginNode: sibiling,
-            dataOverwrite: true,
+            onlyDataOverwrite: true,
           });
           node.parent.deleteFirstAndSecond();
         }

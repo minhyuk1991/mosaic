@@ -295,4 +295,40 @@ describe("delete test", () => {
     expect(sibiling.parent.origin.id === origin.id).toBe(true);
     expect(parent.hasChild()).toBe(false);
   });
+
+  it("originNodeIsRootFirst && !originNodeParentCase &&sibilingHasChildCase", () => {
+    const test = new MosaicNode().init();
+    test.first.split();
+    test.first.first.split();
+    test.first.first.second.split();
+    test.first.first.second.first.split();
+    test.first.first.second.first.first.split();
+    const origin = test.first;
+    const parent = test.first.first;
+    const sibiling = test.first.first.second;
+    const originLocation = origin.location;
+    test.first.first.first.delete();
+    expect(test.first.parent.id === "master").toBe(true);
+    expect(test.first.id === sibiling.origin.id).toBe(true);
+    expect(sibiling.id === test.first[sibiling.location].id).toBe(true);
+    expect(sibiling.hasChild()).toBe(true);
+  });
+
+  it("sibilingHasChildCase &&originNodeIsRootFirst && originNodeParentCase", () => {
+    const test = new MosaicNode().init();
+    test.first.split();
+    test.first.first.split();
+    test.first.first.second.split();
+    test.first.first.second.first.split();
+    test.first.first.second.first.first.split();
+    const origin = test.first;
+    const parent = test.first.first;
+    const sibiling = test.first.first.second;
+    const originLocation = origin.location;
+    test.first.first.first.delete();
+    expect(test.first.parent.id === "master").toBe(true);
+    expect(test.first.id === sibiling.origin.id).toBe(true);
+    expect(sibiling.id === test.first[sibiling.location].id).toBe(true);
+    expect(sibiling.hasChild()).toBe(true);
+  });
 });
