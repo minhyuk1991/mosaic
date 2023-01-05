@@ -25,12 +25,13 @@ let isFolating = false;
 const dnd = {
   mouseDownHandler: (node: MosaicNode, e: MouseEvent) => {
     console.log(document.querySelectorAll(".item__body"));
-    node.origin.type = "child";
+    // node.origin.type = "child";
     $floatingNode = node.origin;
     document.addEventListener("mousemove", dnd.mouseMoveHandler);
     document.addEventListener("mouseup", dnd.mouseUpHandler);
     isFolating = true;
     node.delete();
+    update();
   },
   mouseUpHandler: (e) => {
     console.log("mouseUp");
@@ -40,17 +41,18 @@ const dnd = {
     let direction;
     const target = e.target;
     const nodeItem = findAncestorByClass(target, "node__item");
+    console.log("==nodeItem==", nodeItem);
     if (target.classList.contains("guide__item")) {
       if (target.classList.contains("top")) {
         location = "first";
         direction = "column";
       }
       if (target.classList.contains("right")) {
-        location = "seconde";
+        location = "second";
         direction = "row";
       }
       if (target.classList.contains("bottom")) {
-        location = "seconde";
+        location = "second";
         direction = "column";
       }
       if (target.classList.contains("left")) {
@@ -58,20 +60,20 @@ const dnd = {
         direction = "row";
       }
 
-      console.log();
+      console.log(`===================${location}`);
       // findAncestorById(target, id);
       if (nodeItem && direction && location && nodeItem.getAttribute("id")) {
+        console.log("$nodeItems", $nodeItems);
         const targetId = nodeItem.getAttribute("id");
         const insertTargetNode = $nodeItems.get(targetId);
         console.log("insertTargetNode", insertTargetNode);
-        console.log("insertNode", $floatingNode);
-        insertTargetNode.insert(insertTargetNode, location, direction);
+        insertTargetNode.renderNode.insert($floatingNode, location, direction);
       }
       $floatingNode = null;
       isFolating = false;
+      update();
     }
     // console.log(e.target);
-    update();
 
     // $nodeItems.get()
   },
@@ -111,7 +113,7 @@ function findAncestorById(el: HTMLElement, id: string) {
 <main class="h-full w-full bg-[#abb3bf] text-lg text-green-400">
   {#each [...$nodeItems] as item}
     <Node
-      node="{item[1]}"
+      node="{item[1].renderNode}"
       update="{update}"
       floatNode="{dnd.mouseDownHandler}"
       isFolating="{isFolating}" />
@@ -119,8 +121,8 @@ function findAncestorById(el: HTMLElement, id: string) {
 
   {#each [...$splitBarItems] as node}
     <SplitBar
-      node="{node[1]}"
-      boundingBox="{node[1].boundingBox}"
+      node="{node[1].renderNode}"
+      boundingBox="{node[1].renderNode.boundingBox}"
       update="{update}" />
   {/each}
 

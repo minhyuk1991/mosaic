@@ -2,8 +2,14 @@ import { v4 as uuidv4 } from "uuid";
 
 let data = -1;
 export class MosaicNode {
-  nodeRendertList: Map<string, MosaicNode> = null;
-  splitBarRenderList: Map<string, MosaicNode>;
+  nodeRendertList: Map<
+    string,
+    { originNode: MosaicNode; renderNode: MosaicNode | null }
+  > = null;
+  splitBarRenderList: Map<
+    string,
+    { originNode: MosaicNode; renderNode: MosaicNode }
+  >;
   root: MosaicNode | null = null;
   parent: MosaicNode | null = null;
   first: MosaicNode | null = null;
@@ -56,7 +62,10 @@ export class MosaicNode {
     this.root.type = "parent";
     this.first = item;
     item.parent = this.root;
-    this.root.nodeRendertList.set(item.origin.id, item);
+    this.root.nodeRendertList.set(item.origin.id, {
+      originNode: this.first,
+      renderNode: this.first,
+    });
     return this;
   }
 
@@ -138,7 +147,10 @@ export class MosaicNode {
       console.log(this.first.boundingBox);
       this.second = new MosaicNode(this, "second");
       this.type = "parent";
-      this.root.splitBarRenderList.set(this.id, this);
+      this.root.splitBarRenderList.set(this.id, {
+        originNode: this.origin,
+        renderNode: this,
+      });
       this.root.getSplitBarRenderList();
       console.log("====split 완료===", this);
     }
@@ -195,20 +207,28 @@ export class MosaicNode {
           location,
           direction
         );
+        this.direction = direction;
         this.type = "parent";
-        this.first = insertNode;
-        this.second = new MosaicNode(this, "second", true);
+        this.first = new MosaicNode(this, "first", true);
+        console.log("=========insertNode", insertNode);
+        console.log("=========insertNodeHasChild", insertNode.hasChild());
+        insertNode.origin = insertNode;
+        insertNode.location = location;
+        insertNode.isReplica = false;
         insertNode.parent = this;
-        insertNode.type = "child";
-        console.log("검사 둘째", this);
-        this.boundingBox = this.getBoundingBox();
-        this.first.boundingBox = this.first.getBoundingBox();
+
+        this.second = insertNode;
         this.second.boundingBox = this.second.getBoundingBox();
+        console.log("=========this.second", this.second);
+
+        console.log("삽입된 노드", this.second);
+        console.log("검사 둘째", this);
+        // this.boundingBox = this.getBoundingBox();
+        // this.first.boundingBox = this.first.getBoundingBox();
+        // this.second.boundingBox = this.second.getBoundingBox();
         console.log("end root", this.root);
       }
     }
-    // this.root.updateSplitPercentOrder();
-    // this.root.getSplitBarRenderList();
   }
   getBoundingBox() {
     const rootAndRootFristNode =
@@ -402,7 +422,10 @@ export class MosaicNode {
   splitBarListCheckOrder() {
     const renderTarget = !this.isSameNode(this.root) && this.type === "parent";
     if (renderTarget) {
-      this.root.splitBarRenderList.set(this.id, this);
+      this.root.splitBarRenderList.set(this.origin.id, {
+        originNode: this.origin,
+        renderNode: this,
+      });
     }
     if (this.hasChild) {
       if (this.first) {
@@ -414,10 +437,10 @@ export class MosaicNode {
     }
   }
   updateSplitPercentOrder() {
-    console.log("before", this.boundingBox);
-    console.log("parent id", this.parent?.id);
-    console.log("parent", this.parent?.boundingBox);
-    console.log("after", this.getBoundingBox());
+    // console.log("before", this.boundingBox);
+    // console.log("parent id", this.parent?.id);
+    // console.log("parent", this.parent?.boundingBox);
+    // console.log("after", this.getBoundingBox());
     this.boundingBox = this.getBoundingBox();
     if (this.hasChild()) {
       if (this.first) {
@@ -434,7 +457,10 @@ export class MosaicNode {
 
     if (this.id !== "master") {
       if (this.type === "child") {
-        this.root.nodeRendertList.set(this.origin.id, this);
+        this.root.nodeRendertList.set(this.origin.id, {
+          originNode: this.origin,
+          renderNode: this,
+        });
         // console.log("랜더리스트 추가 완료!!", this.id);
         console.log(this.root.nodeRendertList);
       }
