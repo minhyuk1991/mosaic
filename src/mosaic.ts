@@ -622,7 +622,12 @@ const deleteFunctions = {
             nextOriginNode: sibiling,
             onlyDataOverwrite: true,
           });
-          node.parent.deleteFirstAndSecond();
+          sibiling.originNodeUpdateOrder({ nextOriginNode: origin });
+          sibiling.isReplica = true;
+          const nextSibilingLocation = node.parent.location;
+          sibiling.location = nextSibilingLocation;
+          node.parent.parent[nextSibilingLocation] = sibiling;
+          sibiling.parent = node.parent.parent;
         }
       }
     }
