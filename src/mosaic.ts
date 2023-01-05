@@ -189,29 +189,44 @@ export class MosaicNode {
     }
     if (!insertTopLevel) {
       if (location === "first") {
-        console.log("=====================location first", location, direction);
+        console.log("=====================location first");
+
+        this.direction = direction;
         this.type = "parent";
-        this.first = new MosaicNode(this, "first", true);
-        this.second = insertNode;
+        this.second = new MosaicNode(this, "second", true);
+
+        insertNode.origin = insertNode;
+        insertNode.location = location;
+        insertNode.isReplica = false;
         insertNode.parent = this;
-        insertNode.type = "child";
-        console.log("검사 첫째", this, this.type);
-        this.boundingBox = this.getBoundingBox();
+
+        this.first = insertNode;
         this.first.boundingBox = this.first.getBoundingBox();
-        this.second.boundingBox = this.second.getBoundingBox();
-        console.log("end root", this.root);
+        // console.log("=====================location first", location, direction);
+        // this.direction = direction;
+        // this.type = "parent";
+
+        // insertNode.origin = insertNode;
+        // insertNode.location = location;
+        // insertNode.isReplica = false;
+        // insertNode.parent = this;
+
+        // this.first = new MosaicNode(this, "second", true);
+        // insertNode.parent = this;
+        // insertNode.type = "child";
+        // console.log("검사 첫째", this, this.type);
+        // this.boundingBox = this.getBoundingBox();
+        // this.second = insertNode;
+        // this.first.boundingBox = this.first.getBoundingBox();
+        // this.second.boundingBox = this.second.getBoundingBox();
+        // console.log("end root", this.root);
       }
       if (location === "second") {
-        console.log(
-          "=======================location second",
-          location,
-          direction
-        );
+        console.log("=======================location second");
         this.direction = direction;
         this.type = "parent";
         this.first = new MosaicNode(this, "first", true);
-        console.log("=========insertNode", insertNode);
-        console.log("=========insertNodeHasChild", insertNode.hasChild());
+
         insertNode.origin = insertNode;
         insertNode.location = location;
         insertNode.isReplica = false;
@@ -219,14 +234,10 @@ export class MosaicNode {
 
         this.second = insertNode;
         this.second.boundingBox = this.second.getBoundingBox();
-        console.log("=========this.second", this.second);
 
-        console.log("삽입된 노드", this.second);
-        console.log("검사 둘째", this);
         // this.boundingBox = this.getBoundingBox();
         // this.first.boundingBox = this.first.getBoundingBox();
         // this.second.boundingBox = this.second.getBoundingBox();
-        console.log("end root", this.root);
       }
     }
   }
