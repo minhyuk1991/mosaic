@@ -17,6 +17,7 @@ export class MosaicNode {
   origin: MosaicNode;
   type: "parent" | "child";
   id: string;
+  childHide: "first" | "second" | null;
   splitPercent: number;
   isReplica: boolean;
   location: "first" | "second";
@@ -32,6 +33,7 @@ export class MosaicNode {
     this.parent = parent ? parent : null;
     this.first = null;
     this.second = null;
+    this.childHide = null;
     this.origin = replicaOption && parent ? parent.origin : this;
     this.id = parent ? uuidv4() : "master";
     this.type = parent ? "child" : "parent";
@@ -113,27 +115,6 @@ export class MosaicNode {
       return result;
     }
   }
-
-  // changeOriginDataOrder(tobeNode: MosaicNode) {
-  //   this.data = tobeNode.data;
-  //   if (this.hasChild) {
-  //     if (this.first && this.first.isReplica) {
-  //       this.first.changeOriginDataOrder(tobeNode);
-  //     }
-  //     if (this.first && this.first.isReplica) {
-  //       this.second.changeOriginDataOrder(tobeNode);
-  //     }
-  //   }
-  // }
-  // changeOriginInfo(tobeNode: MosaicNode) {
-  //   if (this.isReplica) {
-  //     throw new Error("This method is dedicated to the source node.");
-  //   }
-  //   console.log("인자 전달받은 아이디", tobeNode.id);
-  //   if (!this.isReplica) {
-  //     this.changeOriginDataOrder(tobeNode);
-  //   }
-  // }
 
   split() {
     const isNoChild = !this.first && !this.second;
@@ -279,6 +260,7 @@ export class MosaicNode {
     console.log("isRootFirstNode");
     return this.root.first.id === this.id;
   }
+
   hasChildNodeById(id) {
     if (this.first && this.first.id === id) {
       return { has: true, node: this.first, location: "first" };
@@ -332,12 +314,12 @@ export class MosaicNode {
       this.type = "child";
     }
   }
-  modifyingToDataOnReceivedNodeOrder(node: MosaicNode) {
-    const beforeOriginId = this.id;
-    this.data = node.data;
-    this.id = node.id;
-    this.changereplicaChild(this, beforeOriginId);
-  }
+  // modifyingToDataOnReceivedNodeOrder(node: MosaicNode) {
+  //   const beforeOriginId = this.id;
+  //   this.data = node.data;
+  //   this.id = node.id;
+  //   this.changereplicaChild(this, beforeOriginId);
+  // }
   changereplicaChild(
     nextOriginNode: MosaicNode,
     CustomBeforeOriginId?: string
@@ -410,6 +392,9 @@ export class MosaicNode {
     }
   }
 
+  hideChild(location: "first" | "second") {
+    this.childHide = location;
+  }
   splitBarListCheckOrder() {
     const renderTarget = this.id !== "master" && this.type === "parent";
     console.log("splitBarListCheckOrder id :", this.id);
@@ -451,6 +436,7 @@ export class MosaicNode {
 
     if (this.id !== "master") {
       if (this.type === "child") {
+        console.log("case~!");
         this.root.nodeRendertList.set(this.origin.id, {
           originNode: this.origin,
           renderNode: this,

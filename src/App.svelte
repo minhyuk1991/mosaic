@@ -7,7 +7,9 @@ import FloatingWindow from "./components/floatingWindow/FloatingWindow.svelte";
 
 let floatingMx = 0;
 let floatingMy = 0;
-let prevTree: MosaicNode | null = null;
+let hideParentNode;
+let hideNodeLocation;
+let selectedDeletNode;
 const test = new MosaicNode().init();
 const nodeItems = writable(test.root.nodeRendertList);
 const splitBarItems = writable(test.root.splitBarRenderList);
@@ -32,19 +34,29 @@ const dnd = {
     document.addEventListener("mousemove", dnd.mouseMoveHandler);
     document.addEventListener("mouseup", dnd.mouseUpHandler);
     isFolating = true;
-    node.delete();
+    // node.delete();
+    selectedDeletNode = node;
+    hideNodeLocation = node.location;
+    hideParentNode = node.parent;
+    node.parent.hideChild(node.location);
     update();
   },
   mouseUpHandler: (e) => {
     console.log("mouseUp");
     document.removeEventListener("mousemove", dnd.mouseMoveHandler);
     document.removeEventListener("mouseup", dnd.mouseUpHandler);
+    // hideNodeLocation = node.location;
+    // hideParentNode = node.parent;
+    // node.parent.hideChild(node.location);
+    hideParentNode.childHide = null;
+
     let location;
     let direction;
     const target = e.target;
     const nodeItem = findAncestorByClass(target, "node__item");
     console.log("==nodeItem==", nodeItem);
-    if (target.classList.contains("guide__item")) {
+
+    if (nodeItem && target.classList.contains("guide__item")) {
       if (target.classList.contains("top")) {
         location = "first";
         direction = "column";
@@ -65,6 +77,7 @@ const dnd = {
       console.log(`===================${location}`);
       // findAncestorById(target, id);
       if (nodeItem && direction && location && nodeItem.getAttribute("id")) {
+        selectedDeletNode.delete();
         console.log("$nodeItems", $nodeItems);
         const targetId = nodeItem.getAttribute("id");
         const insertTargetNode = $nodeItems.get(targetId).renderNode;
@@ -73,6 +86,12 @@ const dnd = {
       }
       $floatingNode = null;
       isFolating = false;
+      update();
+    }
+
+    if (!nodeItem || !target.classList.contains("guide__item")) {
+      console.log("ddddd");
+      hideParentNode.childHide = null;
       update();
     }
     // console.log(e.target);

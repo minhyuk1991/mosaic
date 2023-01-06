@@ -9,11 +9,27 @@ export let floatNode: (node: MosaicNode, e: MouseEvent) => void;
 let { top, bottom, right, left } = node.boundingBox;
 
 $: {
-  ((top = node.boundingBox.top),
-  (left = node.boundingBox.left),
-  (right = node.boundingBox.right),
-  (bottom = node.boundingBox.bottom)),
-    [node];
+  ((top =
+    node.parent.childHide === node.location
+      ? node.parent.boundingBox.top
+      : node.boundingBox.top),
+  (left =
+    node.parent.childHide === node.location
+      ? node.parent.boundingBox.left
+      : node.boundingBox.left),
+  (right =
+    node.parent.childHide === node.location
+      ? node.parent.boundingBox.right
+      : node.boundingBox.right),
+  (bottom =
+    node.parent.childHide === node.location
+      ? node.parent.boundingBox.bottom
+      : node.boundingBox.bottom)),
+    console.log(
+      "node.parent[node.location].childHide === node.location",
+      node.parent.childHide === node.location
+    );
+  [node];
 }
 </script>
 
