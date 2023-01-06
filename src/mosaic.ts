@@ -198,8 +198,11 @@ export class MosaicNode {
       insertNode.isReplica = false;
       insertNode.parent = this;
       this[location] = insertNode;
-      this[location].boundingBox = this[location].getBoundingBox();
+      this.splitBarListCheckOrder();
     }
+    this.root.resizingOrder();
+    this.root.updateSplitPercentOrder();
+    this.root.getSplitBarRenderList();
   }
   getBoundingBox() {
     const rootAndRootFristNode =
