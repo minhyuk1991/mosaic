@@ -7,6 +7,7 @@ export let update: () => void;
 export let node: MosaicNode;
 export let floatNode: (node: MosaicNode, e: MouseEvent) => void;
 let { top, bottom, right, left } = node.boundingBox;
+
 $: {
   ((top = node.boundingBox.top),
   (left = node.boundingBox.left),

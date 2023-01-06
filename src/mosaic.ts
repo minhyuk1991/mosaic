@@ -158,11 +158,16 @@ export class MosaicNode {
     console.log(this.root);
   }
   delete() {
+    console.log("delete");
     if (this.id === "master") throw new Error("this node is master node");
     if (this.parent.id === "master")
       throw new Error("this node parent is master node");
     if (!this.isReplica) deleteFunctions.nomalCase(this);
     if (this.isReplica) deleteFunctions.replicaCase(this);
+    console.log(
+      "============================delete complate=============================",
+      this.root
+    );
   }
   insert(
     insertNode: MosaicNode,
@@ -175,34 +180,43 @@ export class MosaicNode {
       `node:${insertNode}, direction:${direction}, location:${location}`
     );
     if (insertTopLevel) {
-      if (location === "first") {
-        const prevFirst = this.root.first;
-        const nextFirst = new MosaicNode(this.root, "first", false);
-        nextFirst.direction = direction;
-        nextFirst.first = new MosaicNode(nextFirst, "first", true);
-        nextFirst.second = prevFirst;
-        prevFirst.parent = nextFirst;
-        this.root.first = nextFirst;
-        nextFirst.parent = this.root;
-      }
-      if (location === "second") {
-      }
+      // if (location === "first") {
+      //   const prevFirst = this.root.first;
+      //   const nextFirst = new MosaicNode(this.root, "first", false);
+      //   nextFirst.direction = direction;
+      //   nextFirst.first = new MosaicNode(nextFirst, "first", true);
+      //   nextFirst.second = prevFirst;
+      //   prevFirst.parent = nextFirst;
+      //   this.root.first = nextFirst;
+      //   nextFirst.parent = this.root;
+      // }
+      // if (location === "second") {
+      // }
     }
     if (!insertTopLevel) {
+      //복제노드 위치
       const replicaLocation = location === "first" ? "second" : "first";
+      console.log("클릭된 노드 확인", insertNode);
       this.direction = direction;
       this.type = "parent";
       this[replicaLocation] = new MosaicNode(this, replicaLocation, true);
+      // console.log("아이디확인", this[replicaLocation].id === this.id);
+      // console.log("아이디확인", this[replicaLocation].id === this.id);
       insertNode.origin = insertNode;
       insertNode.location = location;
       insertNode.isReplica = false;
       insertNode.parent = this;
       this[location] = insertNode;
-      this.splitBarListCheckOrder();
+      this.getSplitBarRenderList();
+      // this.root.getRenderList();
+      // this.root.splitBarRenderList;
+      // this.root.splitBarListCheckOrder();
+
+      console.log(this.root);
     }
-    this.root.resizingOrder();
-    this.root.updateSplitPercentOrder();
-    this.root.getSplitBarRenderList();
+    // this.root.resizingOrder();
+    // this.root.updateSplitPercentOrder();
+    // this.root.getSplitBarRenderList();
   }
   getBoundingBox() {
     const rootAndRootFristNode =
@@ -274,10 +288,13 @@ export class MosaicNode {
     }
     return { has: false, node: null, location: null };
   }
+  findReplicaChild() {
+    return this.origin.id === this.first.origin.id ? this.first : this.second;
+  }
   findNonReplicaChild() {
     return this.origin.id === this.first.origin.id ? this.second : this.first;
   }
-  findreplicaChildLocation(): null | "first" | "second" {
+  findReplicaChildLocation(): null | "first" | "second" {
     let location = null;
     if (this.hasChild()) {
       if (this.first.origin.id === this.origin.id) {
@@ -395,19 +412,20 @@ export class MosaicNode {
 
   splitBarListCheckOrder() {
     const renderTarget = this.id !== "master" && this.type === "parent";
-
+    console.log("splitBarListCheckOrder id :", this.id);
     if (renderTarget) {
       this.root.splitBarRenderList.set(this.id, {
         originNode: this.origin,
         renderNode: this,
       });
-      console.log("추가됨");
     }
     if (this.hasChild) {
       if (this.first) {
+        console.log("first");
         this.first.splitBarListCheckOrder();
       }
       if (this.second) {
+        console.log("second");
         this.second.splitBarListCheckOrder();
       }
     }
@@ -589,29 +607,27 @@ const deleteFunctions = {
           originNodeParentCase &&
           sibilingHasChildCase
         ) {
-          //완
+          //이슈 있음
           console.log(
             "!originNodeIsRootFirst && originNodeParentCase &&sibilingHasChildCase"
           );
-          const nextSibilingLocation = node.parent.location;
           const sibilingNonReplicaChildLocation =
             sibiling.findNonreplicaChildLocation();
+          const sibilingReplicaChildLocation =
+            sibiling.findReplicaChildLocation();
+          const sibilingReplicaChild = sibiling.findReplicaChild();
           const sibilingNonReplicaChild = sibiling.findNonReplicaChild();
           origin.originNodeUpdateOrder({
             nextOriginNode: sibiling,
             onlyDataOverwrite: true,
           });
-          origin.originNodeUpdateOrder({
-            nextOriginNode: origin,
-            onlyDataOverwrite: true,
-          });
+
           sibiling.originNodeUpdateOrder({ nextOriginNode: origin });
-          sibiling.isReplica = true;
           sibilingNonReplicaChild.parent = origin;
+          sibilingReplicaChild.parent = origin;
+          origin[sibilingReplicaChildLocation] = sibilingReplicaChild;
           origin[sibilingNonReplicaChildLocation] = sibilingNonReplicaChild;
-          sibiling.parent.parent[nextSibilingLocation] = sibiling;
-          sibiling.parent.parent[sibilingNonReplicaChildLocation] =
-            sibilingNonReplicaChild;
+
           sibiling.parent = node.parent.parent;
         }
         //완

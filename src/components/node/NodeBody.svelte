@@ -52,4 +52,9 @@ export let node: MosaicNode;
         {node?.parent.id}</span>
     </p>
   {/if} -->
+  <div class="mosaic-window-body">
+    <h4>Window 3</h4>
+    <span class="default-preview-icon bp4-icon-application bp4-icon-large"
+    ></span>
+  </div>
 </div>

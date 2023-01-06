@@ -7,6 +7,7 @@ import FloatingWindow from "./components/floatingWindow/FloatingWindow.svelte";
 
 let floatingMx = 0;
 let floatingMy = 0;
+let prevTree: MosaicNode | null = null;
 const test = new MosaicNode().init();
 const nodeItems = writable(test.root.nodeRendertList);
 const splitBarItems = writable(test.root.splitBarRenderList);
@@ -27,7 +28,7 @@ const dnd = {
   mouseDownHandler: (node: MosaicNode, e: MouseEvent) => {
     console.log(document.querySelectorAll(".item__body"));
     // node.origin.type = "child";
-    $floatingNode = node.origin;
+    $floatingNode = node;
     document.addEventListener("mousemove", dnd.mouseMoveHandler);
     document.addEventListener("mouseup", dnd.mouseUpHandler);
     isFolating = true;
@@ -66,9 +67,9 @@ const dnd = {
       if (nodeItem && direction && location && nodeItem.getAttribute("id")) {
         console.log("$nodeItems", $nodeItems);
         const targetId = nodeItem.getAttribute("id");
-        const insertTargetNode = $nodeItems.get(targetId);
+        const insertTargetNode = $nodeItems.get(targetId).renderNode;
         console.log("insertTargetNode", insertTargetNode);
-        insertTargetNode.renderNode.insert($floatingNode, location, direction);
+        insertTargetNode.insert($floatingNode, location, direction);
       }
       $floatingNode = null;
       isFolating = false;
