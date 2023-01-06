@@ -12,9 +12,10 @@ const nodeItems = writable(test.root.nodeRendertList);
 const splitBarItems = writable(test.root.splitBarRenderList);
 const floatingNode = writable(null);
 const update = () => {
-  console.log("test.root.nodeRendertList", test.root.nodeRendertList);
+  console.log();
   test.root.nodeRendertList.clear();
   test.root.splitBarRenderList.clear();
+  test.root.resizingOrder();
   test.root.getRenderList();
   test.root.getSplitBarRenderList();
   $nodeItems = test.root.nodeRendertList;

@@ -152,7 +152,8 @@ export class MosaicNode {
         renderNode: this,
       });
       this.root.getSplitBarRenderList();
-      console.log("====split 완료===", this);
+      console.log("====split 완료===!!", this.id, "aaaaaaaa");
+      console.log(this.root);
     }
     console.log(this.root);
   }
@@ -188,57 +189,16 @@ export class MosaicNode {
       }
     }
     if (!insertTopLevel) {
-      if (location === "first") {
-        console.log("=====================location first");
-
-        this.direction = direction;
-        this.type = "parent";
-        this.second = new MosaicNode(this, "second", true);
-
-        insertNode.origin = insertNode;
-        insertNode.location = location;
-        insertNode.isReplica = false;
-        insertNode.parent = this;
-
-        this.first = insertNode;
-        this.first.boundingBox = this.first.getBoundingBox();
-        // console.log("=====================location first", location, direction);
-        // this.direction = direction;
-        // this.type = "parent";
-
-        // insertNode.origin = insertNode;
-        // insertNode.location = location;
-        // insertNode.isReplica = false;
-        // insertNode.parent = this;
-
-        // this.first = new MosaicNode(this, "second", true);
-        // insertNode.parent = this;
-        // insertNode.type = "child";
-        // console.log("검사 첫째", this, this.type);
-        // this.boundingBox = this.getBoundingBox();
-        // this.second = insertNode;
-        // this.first.boundingBox = this.first.getBoundingBox();
-        // this.second.boundingBox = this.second.getBoundingBox();
-        // console.log("end root", this.root);
-      }
-      if (location === "second") {
-        console.log("=======================location second");
-        this.direction = direction;
-        this.type = "parent";
-        this.first = new MosaicNode(this, "first", true);
-
-        insertNode.origin = insertNode;
-        insertNode.location = location;
-        insertNode.isReplica = false;
-        insertNode.parent = this;
-
-        this.second = insertNode;
-        this.second.boundingBox = this.second.getBoundingBox();
-
-        // this.boundingBox = this.getBoundingBox();
-        // this.first.boundingBox = this.first.getBoundingBox();
-        // this.second.boundingBox = this.second.getBoundingBox();
-      }
+      const replicaLocation = location === "first" ? "second" : "first";
+      this.direction = direction;
+      this.type = "parent";
+      this[replicaLocation] = new MosaicNode(this, replicaLocation, true);
+      insertNode.origin = insertNode;
+      insertNode.location = location;
+      insertNode.isReplica = false;
+      insertNode.parent = this;
+      this[location] = insertNode;
+      this[location].boundingBox = this[location].getBoundingBox();
     }
   }
   getBoundingBox() {
@@ -431,12 +391,14 @@ export class MosaicNode {
   }
 
   splitBarListCheckOrder() {
-    const renderTarget = !this.isSameNode(this.root) && this.type === "parent";
+    const renderTarget = this.id !== "master" && this.type === "parent";
+
     if (renderTarget) {
-      this.root.splitBarRenderList.set(this.origin.id, {
+      this.root.splitBarRenderList.set(this.id, {
         originNode: this.origin,
         renderNode: this,
       });
+      console.log("추가됨");
     }
     if (this.hasChild) {
       if (this.first) {
