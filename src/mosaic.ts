@@ -17,7 +17,8 @@ export class MosaicNode {
   origin: MosaicNode;
   type: "parent" | "child";
   id: string;
-  childHide: "first" | "second" | null;
+  isChildHide: boolean;
+  childHideLocation: null | "second" | "first";
   splitPercent: number;
   isReplica: boolean;
   location: "first" | "second";
@@ -33,7 +34,7 @@ export class MosaicNode {
     this.parent = parent ? parent : null;
     this.first = null;
     this.second = null;
-    this.childHide = null;
+    this.isChildHide = null;
     this.origin = replicaOption && parent ? parent.origin : this;
     this.id = parent ? uuidv4() : "master";
     this.type = parent ? "child" : "parent";
@@ -394,7 +395,11 @@ export class MosaicNode {
   }
 
   hideChild(location: "first" | "second" | null) {
-    this.childHide = location;
+    this.isChildHide = true;
+    this.childHideLocation = location;
+    console.log("hideChild");
+    console.log("this.isChildHide", this.isChildHide);
+    console.log("childHideLocation", this.childHideLocation);
   }
   splitBarListCheckOrder() {
     const renderTarget = this.id !== "master" && this.type === "parent";

@@ -7,19 +7,18 @@ export let update: () => void;
 export let node: MosaicNode;
 export let floatNode: (node: MosaicNode, e: MouseEvent) => void;
 let { top, bottom, right, left } = node.boundingBox;
-let isHide = node.parent.childHide === node.location;
+let parentIsChildHide = node.parent.isChildHide;
+let parentChildHideLocation = node.parent.childHideLocation;
+let isHide = parentChildHideLocation === node.location;
 //부모가 차일드하이드를 가지고 있나
 // 이즈하이드===부모가 값이 있고, 그게 내 로케이션과 맞을때.
 $: {
-  const parentChildHide = node.parent.childHide ? true : false;
-  isHide = node.parent.childHide === node.location ? true : false;
-  if (parentChildHide) {
-    if (isHide) {
-      top = node.boundingBox.top;
-      left = node.boundingBox.left;
-      right = node.boundingBox.right;
-      bottom = node.boundingBox.bottom;
-    }
+  parentIsChildHide = node.parent.isChildHide;
+  console.log("parentIsChildHide", parentIsChildHide);
+  console.log("isHide", isHide);
+  parentChildHideLocation = node.parent.childHideLocation;
+  isHide = parentChildHideLocation === node.location;
+  if (parentIsChildHide) {
     if (!isHide) {
       top = node.parent.boundingBox.top;
       left = node.parent.boundingBox.left;
@@ -27,12 +26,13 @@ $: {
       bottom = node.parent.boundingBox.bottom;
     }
   }
-  if (!parentChildHide) {
+  if (!parentIsChildHide) {
     top = node.boundingBox.top;
     right = node.boundingBox.right;
     left = node.boundingBox.left;
     bottom = node.boundingBox.bottom;
   }
+  [node];
 }
 </script>
 

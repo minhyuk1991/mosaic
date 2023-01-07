@@ -7,7 +7,7 @@ import FloatingWindow from "./components/floatingWindow/FloatingWindow.svelte";
 
 let floatingMx = 0;
 let floatingMy = 0;
-let hideParentNode;
+let hideParentNode: MosaicNode;
 let hideNodeLocation;
 let selectedDeletNode;
 const test = new MosaicNode().init();
@@ -39,7 +39,9 @@ const dnd = {
     selectedDeletNode = node;
     hideNodeLocation = node.location;
     hideParentNode = node.parent;
-    hideParentNode.hideChild(node.location);
+    hideParentNode.isChildHide = true;
+    hideParentNode.childHideLocation = node.location;
+    console.log(hideParentNode);
     update();
   },
   mouseUpHandler: (e) => {
@@ -49,8 +51,8 @@ const dnd = {
     // hideNodeLocation = node.location;
     // hideParentNode = node.parent;
     // node.parent.hideChild(node.location);
-    hideParentNode.childHide = null;
-
+    // hideParentNode.isChildHide = false;
+    // hideParentNode.childHideLocation = null;
     const target = e.target;
     const nodeItem = findAncestorByClass(target, "node__item");
     console.log("==nodeItem==", nodeItem);
@@ -104,8 +106,9 @@ const dnd = {
 
     if (!nodeItem && !target.classList.contains("guide__item")) {
       console.log("ddddd");
-      hideParentNode.childHide = null;
     }
+    hideParentNode.isChildHide = false;
+    hideParentNode.childHideLocation = null;
     $floatingNode = null;
     isFolating = false;
     update();
