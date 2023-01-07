@@ -80,10 +80,9 @@ const dnd = {
       console.log(`===================${location}`);
       // findAncestorById(target, id);
       if (nodeItem && direction && location) {
-        // update();
-
         hideParentNode.hideChild(null);
         selectedDeletNode.delete();
+        // update();
         console.log(
           "***************************nodeItem && direction && location && nodeItem.getAttribute"
         );

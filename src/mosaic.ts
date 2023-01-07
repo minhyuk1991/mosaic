@@ -159,7 +159,9 @@ export class MosaicNode {
   ) {
     console.log(
       "insert!!",
-      `node:${insertNode}, direction:${direction}, location:${location}`
+      `
+      target:${this.data}
+      node:${insertNode.data}, direction:${direction}, location:${location}`
     );
     if (insertTopLevel) {
       // if (location === "first") {
@@ -178,7 +180,7 @@ export class MosaicNode {
     if (!insertTopLevel) {
       //복제노드 위치
       const replicaLocation = location === "first" ? "second" : "first";
-      console.log("클릭된 노드 확인", insertNode);
+      console.log("클릭된 노드 확인", insertNode.id);
       this.direction = direction;
       this.type = "parent";
       this[replicaLocation] = new MosaicNode(this, replicaLocation, true);
@@ -625,28 +627,30 @@ const deleteFunctions = {
           originNodeParentCase &&
           sibilingHasChildCase
         ) {
-          //이슈 있음
+          //완료
           console.log(
             "!originNodeIsRootFirst && originNodeParentCase &&sibilingHasChildCase"
           );
-          const sibilingNonReplicaChildLocation =
-            sibiling.findNonreplicaChildLocation();
-          const sibilingReplicaChildLocation =
-            sibiling.findReplicaChildLocation();
-          const sibilingReplicaChild = sibiling.findReplicaChild();
-          const sibilingNonReplicaChild = sibiling.findNonReplicaChild();
-          origin.originNodeUpdateOrder({
-            nextOriginNode: sibiling,
-            onlyDataOverwrite: true,
-          });
-
-          sibiling.originNodeUpdateOrder({ nextOriginNode: origin });
-          sibilingNonReplicaChild.parent = origin;
-          sibilingReplicaChild.parent = origin;
-          origin[sibilingReplicaChildLocation] = sibilingReplicaChild;
-          origin[sibilingNonReplicaChildLocation] = sibilingNonReplicaChild;
-
           sibiling.parent = node.parent.parent;
+          node.parent.parent[node.parent.location] = sibiling;
+          // const sibilingNonReplicaChildLocation =
+          //   sibiling.findNonreplicaChildLocation();
+          // const sibilingReplicaChildLocation =
+          //   sibiling.findReplicaChildLocation();
+          // const sibilingReplicaChild = sibiling.findReplicaChild();
+          // const sibilingNonReplicaChild = sibiling.findNonReplicaChild();
+          // origin.originNodeUpdateOrder({
+          //   nextOriginNode: sibiling,
+          //   onlyDataOverwrite: true,
+          // });
+
+          // sibiling.originNodeUpdateOrder({ nextOriginNode: origin });
+          // sibilingNonReplicaChild.parent = origin;
+          // sibilingReplicaChild.parent = origin;
+          // origin[sibilingReplicaChildLocation] = sibilingReplicaChild;
+          // origin[sibilingNonReplicaChildLocation] = sibilingNonReplicaChild;
+
+          // sibiling.parent = node.parent.parent;
         }
         //완
         if (
