@@ -195,9 +195,10 @@ export class MosaicNode {
 
       console.log(this.root);
     }
-    // this.root.resizingOrder();
-    // this.root.updateSplitPercentOrder();
-    // this.root.getSplitBarRenderList();
+    console.log("end", this.root);
+    this.root.resizingOrder();
+    this.root.updateSplitPercentOrder();
+    this.root.getSplitBarRenderList();
   }
   getBoundingBox() {
     const rootAndRootFristNode =
@@ -392,12 +393,11 @@ export class MosaicNode {
     }
   }
 
-  hideChild(location: "first" | "second") {
+  hideChild(location: "first" | "second" | null) {
     this.childHide = location;
   }
   splitBarListCheckOrder() {
     const renderTarget = this.id !== "master" && this.type === "parent";
-    console.log("splitBarListCheckOrder id :", this.id);
     if (renderTarget) {
       this.root.splitBarRenderList.set(this.id, {
         originNode: this.origin,
@@ -406,11 +406,11 @@ export class MosaicNode {
     }
     if (this.hasChild) {
       if (this.first) {
-        console.log("first");
+        // console.log("first");
         this.first.splitBarListCheckOrder();
       }
       if (this.second) {
-        console.log("second");
+        // console.log("second");
         this.second.splitBarListCheckOrder();
       }
     }
@@ -436,25 +436,25 @@ export class MosaicNode {
 
     if (this.id !== "master") {
       if (this.type === "child") {
-        console.log("case~!");
+        // console.log("case~!");
         this.root.nodeRendertList.set(this.origin.id, {
           originNode: this.origin,
           renderNode: this,
         });
         // console.log("랜더리스트 추가 완료!!", this.id);
-        console.log(this.root.nodeRendertList);
+        // console.log(this.root.nodeRendertList);
       }
     }
     if (this.hasChild) {
       if (this.first) {
-        console.log("this.id:", this.first.id);
-        console.log("this.first.id:", this.first.id);
+        // console.log("this.id:", this.first.id);
+        // console.log("this.first.id:", this.first.id);
         // console.log("다음 실행 예정 노드 ", this.first.id);
         this.first.renderListCheckOrder();
       }
       if (this.second) {
         // console.log("다음 실행 예정 노드 ", this.second.id);
-        console.log("this.second.id:", this.second.id);
+        // console.log("this.second.id:", this.second.id);
         this.second.renderListCheckOrder();
       }
     }

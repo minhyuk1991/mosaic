@@ -29,7 +29,8 @@ let isFolating = false;
 const dnd = {
   mouseDownHandler: (node: MosaicNode, e: MouseEvent) => {
     console.log(document.querySelectorAll(".item__body"));
-    // node.origin.type = "child";
+    // node.origin.type = "child";\
+    console.log("node", node.location);
     $floatingNode = node;
     document.addEventListener("mousemove", dnd.mouseMoveHandler);
     document.addEventListener("mouseup", dnd.mouseUpHandler);
@@ -38,7 +39,7 @@ const dnd = {
     selectedDeletNode = node;
     hideNodeLocation = node.location;
     hideParentNode = node.parent;
-    node.parent.hideChild(node.location);
+    hideParentNode.hideChild(node.location);
     update();
   },
   mouseUpHandler: (e) => {
@@ -50,13 +51,13 @@ const dnd = {
     // node.parent.hideChild(node.location);
     hideParentNode.childHide = null;
 
-    let location;
-    let direction;
     const target = e.target;
     const nodeItem = findAncestorByClass(target, "node__item");
     console.log("==nodeItem==", nodeItem);
 
     if (nodeItem && target.classList.contains("guide__item")) {
+      let location;
+      let direction;
       if (target.classList.contains("top")) {
         location = "first";
         direction = "column";
@@ -76,24 +77,38 @@ const dnd = {
 
       console.log(`===================${location}`);
       // findAncestorById(target, id);
-      if (nodeItem && direction && location && nodeItem.getAttribute("id")) {
+      if (nodeItem && direction && location) {
+        // update();
+
+        hideParentNode.hideChild(null);
         selectedDeletNode.delete();
-        console.log("$nodeItems", $nodeItems);
+        console.log(
+          "***************************nodeItem && direction && location && nodeItem.getAttribute"
+        );
         const targetId = nodeItem.getAttribute("id");
-        const insertTargetNode = $nodeItems.get(targetId).renderNode;
+        const isSameParent =
+          selectedDeletNode.parent ===
+          $nodeItems.get(targetId).renderNode.parent;
+        console.log(
+          "selectedDeletNode.parent===$nodeItems.get(targetId).renderNode.parent",
+          selectedDeletNode.parent ===
+            $nodeItems.get(targetId).renderNode.parent
+        );
+        const insertTargetNode = isSameParent
+          ? $nodeItems.get(targetId).renderNode.parent
+          : $nodeItems.get(targetId).renderNode;
         console.log("insertTargetNode", insertTargetNode);
         insertTargetNode.insert($floatingNode, location, direction);
       }
-      $floatingNode = null;
-      isFolating = false;
-      update();
     }
 
-    if (!nodeItem || !target.classList.contains("guide__item")) {
+    if (!nodeItem && !target.classList.contains("guide__item")) {
       console.log("ddddd");
       hideParentNode.childHide = null;
-      update();
     }
+    $floatingNode = null;
+    isFolating = false;
+    update();
     // console.log(e.target);
 
     // $nodeItems.get()
@@ -106,7 +121,10 @@ const dnd = {
 
 function findAncestorByClass(el: HTMLElement, className: string) {
   let currentElement = el;
-  console.log();
+  console.log("el", el);
+  if (!el || el.tagName === "HTML") {
+    return null;
+  }
   while (!currentElement.classList.contains(className)) {
     currentElement = currentElement.parentElement;
     if (currentElement.tagName === "HTML") {
