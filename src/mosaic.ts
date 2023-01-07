@@ -215,6 +215,8 @@ export class MosaicNode {
     if (!rootAndRootFristNode) {
       const parentSplitPercent = this.parent.splitPercent;
       const parentDirection = this.parent.direction;
+      const parentIsChildHide = this.parent.isChildHide;
+      const parentChildHideLocation = this.parent.childHideLocation;
       const { top, right, bottom, left } = this.parent.boundingBox;
       const parentWidth = 100 - right - left;
       const parentHeight = 100 - top - bottom;
@@ -228,12 +230,24 @@ export class MosaicNode {
       const columnAndSecondCase =
         parentDirection === "column" && currentItemLocation === "second";
       if (rowAndFirstCase) {
+        if (parentIsChildHide && parentChildHideLocation !== this.location) {
+          console.log("dddd");
+          return {
+            ...this.parent.boundingBox,
+          };
+        }
         return {
           ...this.parent.boundingBox,
           right: right + parentWidth * (100 - parentSplitPercent) * 0.01,
         };
       }
       if (rowAndSecondCase) {
+        if (parentIsChildHide && parentChildHideLocation !== this.location) {
+          console.log("dddd");
+          return {
+            ...this.parent.boundingBox,
+          };
+        }
         return {
           ...this.parent.boundingBox,
           left: left + parentWidth * parentSplitPercent * 0.01,
@@ -241,12 +255,25 @@ export class MosaicNode {
       }
 
       if (columnAndFirstCase) {
+        if (parentIsChildHide && parentChildHideLocation !== this.location) {
+          console.log("dddd");
+
+          return {
+            ...this.parent.boundingBox,
+          };
+        }
         return {
           ...this.parent.boundingBox,
           bottom: bottom + parentHeight * (100 - parentSplitPercent) * 0.01,
         };
       }
       if (columnAndSecondCase) {
+        if (parentIsChildHide && parentChildHideLocation !== this.location) {
+          console.log("dddd");
+          return {
+            ...this.parent.boundingBox,
+          };
+        }
         return {
           ...this.parent.boundingBox,
           top: top + parentHeight * parentSplitPercent * 0.01,

@@ -14,24 +14,24 @@ let isHide = parentChildHideLocation === node.location;
 // 이즈하이드===부모가 값이 있고, 그게 내 로케이션과 맞을때.
 $: {
   parentIsChildHide = node.parent.isChildHide;
-  console.log("parentIsChildHide", parentIsChildHide);
-  console.log("isHide", isHide);
+  // console.log("parentIsChildHide", parentIsChildHide);
+  // console.log("isHide", isHide);
   parentChildHideLocation = node.parent.childHideLocation;
   isHide = parentChildHideLocation === node.location;
-  if (parentIsChildHide) {
-    if (!isHide) {
-      top = node.parent.boundingBox.top;
-      left = node.parent.boundingBox.left;
-      right = node.parent.boundingBox.right;
-      bottom = node.parent.boundingBox.bottom;
-    }
-  }
-  if (!parentIsChildHide) {
-    top = node.boundingBox.top;
-    right = node.boundingBox.right;
-    left = node.boundingBox.left;
-    bottom = node.boundingBox.bottom;
-  }
+  // if (parentIsChildHide) {
+  //   if (!isHide) {
+  //     top = node.parent.boundingBox.top;
+  //     left = node.parent.boundingBox.left;
+  //     right = node.parent.boundingBox.right;
+  //     bottom = node.parent.boundingBox.bottom;
+  //   }
+  // }
+  // if (!parentIsChildHide) {
+  top = node.boundingBox.top;
+  right = node.boundingBox.right;
+  left = node.boundingBox.left;
+  bottom = node.boundingBox.bottom;
+  // }
   [node];
 }
 </script>
