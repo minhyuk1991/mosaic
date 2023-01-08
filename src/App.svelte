@@ -37,21 +37,23 @@ onMount(() => {
 let isFolating = false;
 const dnd = {
   mouseDownHandler: (node: MosaicNode, e: MouseEvent) => {
-    console.log(document.querySelectorAll(".item__body"));
-    // node.origin.type = "child";\
-    console.log("node", node.location);
-    $floatingNode = node;
-    document.addEventListener("mousemove", dnd.mouseMoveHandler);
-    document.addEventListener("mouseup", dnd.mouseUpHandler);
-    isFolating = true;
-    // node.delete();
-    selectedDeletNode = node;
-    hideNodeLocation = node.location;
-    hideParentNode = node.parent;
-    hideParentNode.isChildHide = true;
-    hideParentNode.childHideLocation = node.location;
-    console.log(hideParentNode);
-    update();
+    if ($nodeItems.size > 1) {
+      console.log(document.querySelectorAll(".item__body"));
+      // node.origin.type = "child";\
+      console.log("node", node.location);
+      $floatingNode = node;
+      document.addEventListener("mousemove", dnd.mouseMoveHandler);
+      document.addEventListener("mouseup", dnd.mouseUpHandler);
+      isFolating = true;
+      // node.delete();
+      selectedDeletNode = node;
+      hideNodeLocation = node.location;
+      hideParentNode = node.parent;
+      hideParentNode.isChildHide = true;
+      hideParentNode.childHideLocation = node.location;
+      console.log(hideParentNode);
+      update();
+    }
   },
 
   mouseMoveHandler: (e: MouseEvent) => {
