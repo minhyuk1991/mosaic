@@ -76,14 +76,18 @@ html {
 }
 
 .main.moving.top > .guideList .guide__item.top {
+  pointer-events: none;
   opacity: 20 !important;
 }
 .main.moving.right > .guideList .guide__item.right {
+  pointer-events: none;
   opacity: 20 !important;
 }
 .main.moving.bottom > .guideList .guide__item.bottom {
+  pointer-events: none;
   opacity: 20 !important;
 }
 .main.moving.left > .guideList .guide__item.left {
+  pointer-events: none;
   opacity: 20 !important;
 }
