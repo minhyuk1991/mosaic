@@ -233,7 +233,7 @@ function findAncestorByClass(el: HTMLElement, className: string) {
 // }
 </script>
 
-<main class="main relative h-full w-full bg-[#abb3bf] text-lg text-green-400">
+<main class="main relative h-full w-full bg-[#abb3bf] text-lg">
   <div class="guideList">
     <div
       class="guide__item top absolute top-0 h-[50%] w-full rounded-[2px] border-2 border-solid border-[#4c90f0] bg-[rgba(138,187,255,.2)]">
