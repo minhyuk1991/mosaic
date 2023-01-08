@@ -151,11 +151,71 @@ export class MosaicNode {
       this.root
     );
   }
+  topLevelInsert({
+    insertNode,
+    location,
+    direction,
+  }: {
+    insertNode: MosaicNode;
+    location: "first" | "second";
+    direction: "row" | "column";
+  }) {
+    console.log("topLevelInsert");
+
+    if (location === "first") {
+      const prevFirst = this.root.first;
+      const nextFirst = insertNode;
+      this.root.first = nextFirst;
+      nextFirst.origin = insertNode;
+      nextFirst.parent = this.root;
+      nextFirst.location = "first";
+      nextFirst.type = "parent";
+      nextFirst.direction = direction;
+      nextFirst.isReplica = false;
+
+      prevFirst.location = "second";
+      nextFirst.first = new MosaicNode(nextFirst, "first", true);
+      prevFirst.parent = nextFirst;
+      nextFirst.second = prevFirst;
+      console.log(this.root);
+    }
+    if (location === "second") {
+      const prevFirst = this.root.first;
+      const nextFirst = insertNode;
+      this.root.first = nextFirst;
+      nextFirst.origin = insertNode;
+      nextFirst.parent = this.root;
+      nextFirst.location = "second";
+      nextFirst.type = "parent";
+      nextFirst.direction = direction;
+      nextFirst.isReplica = false;
+      prevFirst.location = "first";
+      nextFirst.second = new MosaicNode(nextFirst, "second", true);
+      prevFirst.parent = nextFirst;
+      nextFirst.first = prevFirst;
+      console.log(this.root);
+
+      // const nextSecond = insertNode;
+      // rootFirst.second = nextSecond;
+      // nextSecond.origin = nextSecond;
+      // nextSecond.parent = rootFirst;
+      // nextSecond.location = "second";
+      // nextSecond.type = "parent";
+      // nextSecond.isReplica = false;
+      // nextSecond.direction = direction;
+
+      // nextChildSecond.parent = nextSecond;
+      // nextSecond.first = new MosaicNode(nextSecond, "first", true);
+      // nextSecond.second = nextChildSecond;
+    }
+    this.root.resizingOrder();
+    this.root.updateSplitPercentOrder();
+    this.root.getSplitBarRenderList();
+  }
   insert(
     insertNode: MosaicNode,
     location: "first" | "second",
-    direction: "row" | "column",
-    insertTopLevel: boolean = false
+    direction: "row" | "column"
   ) {
     console.log(
       "insert!!",
@@ -163,41 +223,26 @@ export class MosaicNode {
       target:${this.data}
       node:${insertNode.data}, direction:${direction}, location:${location}`
     );
-    if (insertTopLevel) {
-      // if (location === "first") {
-      //   const prevFirst = this.root.first;
-      //   const nextFirst = new MosaicNode(this.root, "first", false);
-      //   nextFirst.direction = direction;
-      //   nextFirst.first = new MosaicNode(nextFirst, "first", true);
-      //   nextFirst.second = prevFirst;
-      //   prevFirst.parent = nextFirst;
-      //   this.root.first = nextFirst;
-      //   nextFirst.parent = this.root;
-      // }
-      // if (location === "second") {
-      // }
-    }
-    if (!insertTopLevel) {
-      //복제노드 위치
-      const replicaLocation = location === "first" ? "second" : "first";
-      console.log("클릭된 노드 확인", insertNode.id);
-      this.direction = direction;
-      this.type = "parent";
-      this[replicaLocation] = new MosaicNode(this, replicaLocation, true);
-      // console.log("아이디확인", this[replicaLocation].id === this.id);
-      // console.log("아이디확인", this[replicaLocation].id === this.id);
-      insertNode.origin = insertNode;
-      insertNode.location = location;
-      insertNode.isReplica = false;
-      insertNode.parent = this;
-      this[location] = insertNode;
-      this.getSplitBarRenderList();
-      // this.root.getRenderList();
-      // this.root.splitBarRenderList;
-      // this.root.splitBarListCheckOrder();
 
-      console.log(this.root);
-    }
+    //복제노드 위치
+    const replicaLocation = location === "first" ? "second" : "first";
+    console.log("클릭된 노드 확인", insertNode.id);
+    this.direction = direction;
+    this.type = "parent";
+    this[replicaLocation] = new MosaicNode(this, replicaLocation, true);
+    // console.log("아이디확인", this[replicaLocation].id === this.id);
+    // console.log("아이디확인", this[replicaLocation].id === this.id);
+    insertNode.origin = insertNode;
+    insertNode.location = location;
+    insertNode.isReplica = false;
+    insertNode.parent = this;
+    this[location] = insertNode;
+    this.getSplitBarRenderList();
+    // this.root.getRenderList();
+    // this.root.splitBarRenderList;
+    // this.root.splitBarListCheckOrder();
+
+    console.log(this.root);
     console.log("end", this.root);
     this.root.resizingOrder();
     this.root.updateSplitPercentOrder();

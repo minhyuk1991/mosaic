@@ -49,6 +49,41 @@ html {
 .node__item .item__body .guide__item {
   opacity: 0;
 }
-.node__item.active .item__body .guide__item:hover {
+/* .main:not(.moving)  */
+.main:not(.moving) .node__item.active .item__body .guide__item:hover {
+  opacity: 20 !important;
+}
+.main.moving .node__item.active .item__body .guide__item {
+  opacity: 0 !important;
+}
+
+.main .guideList {
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+.main.moving .guideList {
+  z-index: 50;
+}
+
+.main .guideList .guide__item {
+  opacity: 0;
+}
+
+.main.moving.top > .guideList .guide__item.top {
+  opacity: 20 !important;
+}
+.main.moving.right > .guideList .guide__item.right {
+  opacity: 20 !important;
+}
+.main.moving.bottom > .guideList .guide__item.bottom {
+  opacity: 20 !important;
+}
+.main.moving.left > .guideList .guide__item.left {
   opacity: 20 !important;
 }
