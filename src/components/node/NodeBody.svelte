@@ -6,14 +6,17 @@ export let node: MosaicNode;
 
 <div class="item__body relative flex flex-1 flex-col overflow-y-auto ">
   <div class="guideList">
-    <div class="guide__item top absolute top-0 h-[20%] w-full bg-blue-400 ">
-    </div>
-    <div class="guide__item right absolute right-0 h-full w-[20%] bg-blue-400 ">
+    <div
+      class="guide__item top absolute top-0 h-[20%] w-full border-2 border-solid border-[#4c90f0] bg-[rgba(138,187,255,.2)] ">
     </div>
     <div
-      class="guide__item bottom absolute  bottom-0 h-[20%] w-full bg-blue-400 ">
+      class="guide__item right absolute right-0 h-full w-[20%] border-2 border-solid border-[#4c90f0] bg-[rgba(138,187,255,.2)] ">
     </div>
-    <div class="guide__item left absolute left-0 h-full w-[20%] bg-blue-400 ">
+    <div
+      class="guide__item bottom absolute  bottom-0 h-[20%] w-full border-2 border-solid border-[#4c90f0] bg-[rgba(138,187,255,.2)] ">
+    </div>
+    <div
+      class="guide__item left absolute left-0 h-full w-[20%] border-2 border-solid border-[#4c90f0] bg-[rgba(138,187,255,.2)] ">
     </div>
   </div>
   <p>
